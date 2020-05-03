@@ -1,0 +1,41 @@
+service:
+  name: dives-backend
+# app and org for use with dashboard.serverless.com
+app: dives-backend-app
+org: org-name
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+  dynamodb:
+    stages:
+      - dev
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-dynamodb-local
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+
+
+functions:
+  apollo:
+    handler: index.handler
+    events:
+      - http:
+          path: graphql
+          method: post
+          cors: true
+      - http:
+          path: graphql
+          method: get
+          cors: true
+    environment:
+      DYNAMODB_TABLE: dives
+      JWT_SECRET: secret

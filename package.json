@@ -1,0 +1,46 @@
+{
+  "name": "dives-backend",
+  "version": "1.0.0",
+  "description": "Serverless webpack example using Typescript",
+  "main": "handler.js",
+  "scripts": {
+    "postinstall": "sls dynamodb install",
+    "serve": "sls dynamodb start --dbPath ./dynamodb-local & sls offline",
+    "debug": "sls dynamodb start --dbPath ./dynamodb-local  & SLS_DEBUG=* sls offline",
+    "killDynamoDB": "ps | grep DynamoDBLocal | awk '{print $1}' | xargs kill -9 $1",
+    "test": "sls dynamodb start -i & sleep 20s && jest --watchAll || true",
+    "posttest": "npm run killDynamoDB"
+  },
+  "dependencies": {
+    "apollo-server-lambda": "^2.12.0",
+    "apollo-server-plugin-http-headers": "^0.1.3",
+    "aws-sdk": "^2.656.0",
+    "bcrypt": "^4.0.1",
+    "graphql": "^15.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "nanoid": "^3.1.3",
+    "source-map-support": "^0.5.10"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.17",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/bcrypt": "^3.0.0",
+    "@types/jest": "^25.2.1",
+    "@types/jsonwebtoken": "^8.3.9",
+    "@types/nanoid": "^2.1.0",
+    "@types/node": "^10.12.18",
+    "apollo-server-testing": "^2.12.0",
+    "fork-ts-checker-webpack-plugin": "^3.0.1",
+    "jest": "^25.5.0",
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-offline": "^6.1.4",
+    "serverless-webpack": "^5.2.0",
+    "ts-jest": "^25.4.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.4",
+    "webpack": "^4.29.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "license": "MIT"
+}

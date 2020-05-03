@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Throws error on email collision 1`] = `
+Object {
+  "data": Object {
+    "createUser": null,
+  },
+  "errors": Array [
+    [GraphQLError: User with that email already exists],
+  ],
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;

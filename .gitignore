@@ -1,0 +1,16 @@
+# package directories
+node_modules
+.dynamodb
+
+# Serverless directories
+.serverless
+
+# Webpack directories
+.webpack
+
+# Local database
+dynamodb-local
+
+# Configuration files
+.vscode
+serverless.yml
