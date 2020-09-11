@@ -1,0 +1,41 @@
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Field, ObjectType} from "type-graphql";
+import {Plan} from "./Plan";
+import {User} from "./User";
+
+@ObjectType()
+@Entity()
+export class Purchase {
+    @Field()
+    @PrimaryGeneratedColumn()
+    id: string
+
+    @Field()
+    @Column("date")
+    startDate: string
+
+    @Field()
+    @Column("date")
+    endDate: string
+
+    @Field()
+    @Column("money")
+    price: string
+
+    @Field()
+    @Column("varchar")
+    currency: string
+
+    @Field()
+    @Column("varchar")
+    name: string
+
+    @Field(()=>User)
+    @ManyToOne(()=>User,(user)=>user.purchases)
+    user: User
+
+    @Field(()=>Plan)
+    @ManyToOne(()=>Plan,(plan)=>plan.purchases)
+    plan: Plan
+
+}
