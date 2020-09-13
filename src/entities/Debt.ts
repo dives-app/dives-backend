@@ -1,12 +1,12 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {User} from "./User";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { User } from "./User"
 
 @ObjectType()
 @Entity()
 export class Debt {
     @Field()
-    @PrimaryGeneratedColumn({type: "uuid"})
+    @PrimaryGeneratedColumn({ type: "uuid" })
     id: string
 
     @Field()
@@ -17,16 +17,16 @@ export class Debt {
     @Column("varchar")
     currency: string
 
-    @Field({nullable: true})
-    @Column("float",{nullable: true})
+    @Field({ nullable: true })
+    @Column("float", { nullable: true })
     interestRate: string
 
     @Field()
     @Column("date")
     endDate: string
 
-    @Field({nullable: true})
-    @Column("varchar",{nullable: true})
+    @Field({ nullable: true })
+    @Column("varchar", { nullable: true })
     description: string
 
     @Field()
@@ -41,8 +41,7 @@ export class Debt {
     @Column("varchar")
     color: string
 
-    @Field(()=>User)
-    @ManyToOne(()=>User,(user)=>user.debts)
+    @Field(() => User)
+    @ManyToOne(() => User, (user) => user.debts)
     user: User
-
 }

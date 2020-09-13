@@ -1,20 +1,20 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {Category} from "./Category";
-import {Account} from "./Account";
-import {Budget} from "./Budget";
-import {Merchant} from "./Merchant";
-import {User} from "./User";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { Category } from "./Category"
+import { Account } from "./Account"
+import { Budget } from "./Budget"
+import { Merchant } from "./Merchant"
+import { User } from "./User"
 
 @ObjectType()
 @Entity()
 export class Transaction {
     @Field()
-    @PrimaryGeneratedColumn({type: "uuid"})
+    @PrimaryGeneratedColumn({ type: "uuid" })
     id: string
 
-    @Field({nullable: true})
-    @Column("varchar", {nullable: true})
+    @Field({ nullable: true })
+    @Column("varchar", { nullable: true })
     name: string
 
     @Field()
@@ -25,8 +25,8 @@ export class Transaction {
     @Column("timestamptz")
     time: string
 
-    @Field({nullable: true})
-    @Column("varchar", {nullable: true})
+    @Field({ nullable: true })
+    @Column("varchar", { nullable: true })
     description: string
 
     @Field(() => Category)
@@ -37,16 +37,21 @@ export class Transaction {
     @ManyToOne(() => Account, (account) => account.transactions)
     account: Account
 
-    @Field(() => Budget, {nullable: true})
-    @ManyToOne(() => Budget, (budget) => budget.transactions, {nullable: true})
+    @Field(() => Budget, { nullable: true })
+    @ManyToOne(() => Budget, (budget) => budget.transactions, {
+        nullable: true,
+    })
     budget: Budget
 
-    @Field(() => Merchant, {nullable: true})
-    @ManyToOne(() => Merchant, (merchant) => merchant.transactions, {nullable: true})
+    @Field(() => Merchant, { nullable: true })
+    @ManyToOne(() => Merchant, (merchant) => merchant.transactions, {
+        nullable: true,
+    })
     merchant: Merchant
 
-    @Field(() => User, {nullable: true})
-    @ManyToOne(() => User, (recipient) => recipient.transactions, {nullable: true})
+    @Field(() => User, { nullable: true })
+    @ManyToOne(() => User, (recipient) => recipient.transactions, {
+        nullable: true,
+    })
     recipient: User
-
 }

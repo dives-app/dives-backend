@@ -1,7 +1,7 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {Plan} from "./Plan";
-import {User} from "./User";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { Plan } from "./Plan"
+import { User } from "./User"
 
 @ObjectType()
 @Entity()
@@ -30,12 +30,11 @@ export class Purchase {
     @Column("varchar")
     name: string
 
-    @Field(()=>User)
-    @ManyToOne(()=>User,(user)=>user.purchases)
+    @Field(() => User)
+    @ManyToOne(() => User, (user) => user.purchases)
     user: User
 
-    @Field(()=>Plan)
-    @ManyToOne(()=>Plan,(plan)=>plan.purchases)
+    @Field(() => Plan)
+    @ManyToOne(() => Plan, (plan) => plan.purchases)
     plan: Plan
-
 }

@@ -1,7 +1,7 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {User} from "./User";
-import {Budget} from "./Budget";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { User } from "./User"
+import { Budget } from "./Budget"
 
 enum AccessLevel {
     OWNER,
@@ -13,7 +13,7 @@ enum AccessLevel {
 @Entity()
 export class BudgetMembership {
     @PrimaryGeneratedColumn()
-    id: number
+    id: string
 
     @Field(() => User)
     @ManyToOne(() => User, (user) => user.budgetMembership)
@@ -26,5 +26,4 @@ export class BudgetMembership {
     @Field()
     @Column()
     accessLevel: AccessLevel
-
 }

@@ -1,29 +1,35 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {User} from "./User";
-import {Budget} from "./Budget";
-import {Transaction} from "./Transaction";
-import {CycleTransaction} from "./CycleTransaction";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { User } from "./User"
+import { Budget } from "./Budget"
+import { Transaction } from "./Transaction"
+import { CycleTransaction } from "./CycleTransaction"
 
 enum CategoryType {
     EXPENSE,
     INCOME,
-    TRANSFER
+    TRANSFER,
 }
 
 @ObjectType()
 @Entity()
 export class Category {
     @Field()
-    @PrimaryGeneratedColumn({type: "uuid"})
+    @PrimaryGeneratedColumn({ type: "uuid" })
     id: string
 
     @Field()
     @Column("varchar")
     name: string
 
-    @Field({nullable: true})
-    @Column("money", {nullable: true})
+    @Field({ nullable: true })
+    @Column("money", { nullable: true })
     limit: number
 
     @Field()
@@ -38,12 +44,12 @@ export class Category {
     @Column("varchar")
     color: string
 
-    @Field(() => User, {nullable: true})
-    @ManyToOne(() => User, user => user.categories, {nullable: true})
+    @Field(() => User, { nullable: true })
+    @ManyToOne(() => User, (user) => user.categories, { nullable: true })
     ownerUser: User
 
-    @Field(() => Budget, {nullable: true})
-    @ManyToOne(() => Budget, budget => budget.categories, {nullable: true})
+    @Field(() => Budget, { nullable: true })
+    @ManyToOne(() => Budget, (budget) => budget.categories, { nullable: true })
     ownerBudget: Budget
 
     @Field(() => [Transaction])

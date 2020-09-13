@@ -1,6 +1,6 @@
-import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {Purchase} from "./Purchase";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { Purchase } from "./Purchase"
 
 @ObjectType()
 @Entity()
@@ -17,7 +17,7 @@ export class Plan {
     @Column("money")
     price: number
 
-    @Field(()=>Purchase)
-    @OneToMany(()=>Purchase, (purchase)=>purchase.plan)
+    @Field(() => Purchase)
+    @OneToMany(() => Purchase, (purchase) => purchase.plan)
     purchases: Purchase[]
 }

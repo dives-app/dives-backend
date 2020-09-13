@@ -1,8 +1,14 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {Transaction} from "./Transaction";
-import {User} from "./User";
-import {CycleTransaction} from "./CycleTransaction";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from "typeorm"
+import { Field, ObjectType } from "type-graphql"
+import { Transaction } from "./Transaction"
+import { User } from "./User"
+import { CycleTransaction } from "./CycleTransaction"
 
 enum AccountType {
     DEPOSIT,
@@ -15,7 +21,7 @@ enum AccountType {
 @Entity()
 export class Account {
     @Field()
-    @PrimaryGeneratedColumn({type: "uuid"})
+    @PrimaryGeneratedColumn({ type: "uuid" })
     id: string
 
     @Field()
@@ -26,8 +32,8 @@ export class Account {
     @Column("varchar")
     currency: string
 
-    @Field({nullable:true})
-    @Column("varchar",{nullable:true})
+    @Field({ nullable: true })
+    @Column("varchar", { nullable: true })
     description: string
 
     @Field()
@@ -46,27 +52,27 @@ export class Account {
     @Column()
     type: AccountType
 
-    @Field({nullable:true})
-    @Column("float",{nullable:true})
+    @Field({ nullable: true })
+    @Column("float", { nullable: true })
     interestRate: number
 
-    @Field({nullable:true})
-    @Column("date",{nullable:true})
+    @Field({ nullable: true })
+    @Column("date", { nullable: true })
     billingDate: string
 
-    @Field({nullable:true})
-    @Column("int",{nullable:true})
+    @Field({ nullable: true })
+    @Column("int", { nullable: true })
     billingPeriod: number
 
-    @Field(()=>User)
-    @ManyToOne(()=>User, (user)=>user.accounts)
+    @Field(() => User)
+    @ManyToOne(() => User, (user) => user.accounts)
     owner: User
 
-    @Field(()=>[Transaction])
+    @Field(() => [Transaction])
     @OneToMany(() => Transaction, (transaction) => transaction.account)
     transactions: Transaction[]
 
-    @Field(()=>[CycleTransaction])
+    @Field(() => [CycleTransaction])
     @OneToMany(() => CycleTransaction, (transaction) => transaction.account)
     cycleTransaction: CycleTransaction[]
 }
