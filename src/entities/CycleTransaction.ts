@@ -57,5 +57,5 @@ export class CycleTransaction {
     @ManyToOne(() => User, (recipient) => recipient.cycleTransactions, {
         nullable: true,
     })
-    recipient: User
+    user: User
 }

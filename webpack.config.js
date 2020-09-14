@@ -8,7 +8,7 @@ module.exports = {
     entry: slsw.lib.entries,
     devtool: "source-map",
     resolve: {
-        extensions: [".mjs", ".json", ".ts"],
+        extensions: [".ts", ".mjs", ".json"],
         symlinks: false,
         cacheWithContext: false,
     },

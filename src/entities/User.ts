@@ -51,11 +51,11 @@ export class User extends BaseEntity {
     categories: Category[]
 
     @Field(() => [Transaction])
-    @OneToMany(() => Transaction, (transaction) => transaction.merchant)
+    @OneToMany(() => Transaction, (transaction) => transaction.user)
     transactions: Transaction[]
 
     @Field(() => [CycleTransaction])
-    @OneToMany(() => CycleTransaction, (transaction) => transaction.merchant)
+    @OneToMany(() => CycleTransaction, (transaction) => transaction.user)
     cycleTransactions: CycleTransaction[]
 
     @Field(() => [Account])

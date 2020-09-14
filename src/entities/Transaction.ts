@@ -53,5 +53,5 @@ export class Transaction {
     @ManyToOne(() => User, (recipient) => recipient.transactions, {
         nullable: true,
     })
-    recipient: User
+    user: User
 }
