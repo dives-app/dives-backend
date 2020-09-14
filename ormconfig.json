@@ -8,10 +8,10 @@
   "synchronize": true,
   "logging": false,
   "entities": [
-    "lib/src/entities/**/*.js"
+    ".build/src/entities/**/*.js"
   ],
   "migrations": [
-    "lib/src/migrations/**/*.js"
+    ".build/src/migrations/**/*.js"
   ],
   "cli": {
     "migrationsDir": "src/migrations"

@@ -5,10 +5,6 @@ import { User } from "../entities/User"
 export class HelloResolver {
     @Query(() => User)
     hello() {
-        return User.find({ where: { name: "Filip" } })
+        return User.findOne({ where: { country: "Poland" } })
     }
-    // @Query(() => String)
-    // hello() {
-    //     return `User.find({ where: { name: "Filip" } })`
-    // }
 }

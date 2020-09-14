@@ -4,25 +4,15 @@ service:
 app: dives-backend-app
 org: org-name
 
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
-  dynamodb:
-    stages:
-      - dev
-
 plugins:
-  - serverless-webpack
+  - serverless-plugin-typescript
   - serverless-offline
-  - serverless-dynamodb-local
 
 provider:
   name: aws
   runtime: nodejs12.x
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
-
 
 functions:
   apollo:
@@ -37,5 +27,4 @@ functions:
           method: get
           cors: true
     environment:
-      DYNAMODB_TABLE: dives
       JWT_SECRET: secret

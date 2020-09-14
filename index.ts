@@ -4,83 +4,94 @@ import { Connection, createConnection, getConnectionManager } from "typeorm"
 import { ApolloServer } from "apollo-server-lambda"
 import httpHeadersPlugin from "apollo-server-plugin-http-headers"
 import { verify } from "jsonwebtoken"
-import { ApolloContext, TokenData, Context as MyApolloContext } from "./types"
-import { buildSchema } from "type-graphql"
-import {
-    APIGatewayEvent,
-    APIGatewayProxyResult,
-    Callback,
-    Context,
-} from "aws-lambda"
+import { ApolloContext, Context as MyApolloContext, TokenData } from "./types"
+import { buildSchemaSync } from "type-graphql"
+import { APIGatewayEvent, Context } from "aws-lambda"
 import { HelloResolver } from "./src/resolvers/example"
 
-async function getServer() {
-    if (!(global as any).schema) {
-        console.log("About to generate schema: ")
-        ;(global as any).schema = buildSchema({
-            resolvers: [HelloResolver],
-            validate: false,
-            emitSchemaFile: true,
-        })
-    }
-
-    const schema = await (global as any).schema
-    console.log("Schema: ", JSON.stringify(schema, null, 2))
-
-    return new ApolloServer({
-        schema,
-        plugins: [httpHeadersPlugin],
-        playground: { endpoint: "/dev/graphql" },
-        context: ({ event, context }: ApolloContext): MyApolloContext => {
-            let user: TokenData = { email: null, id: null }
-            try {
-                const jwt = event.headers.Cookie.match(
-                    /jwt=.*?(?=;|$)/m
-                )[0].slice(4)
-                user = verify(jwt, process.env.JWT_SECRET) as TokenData
-            } catch {}
-            return {
-                event,
-                context,
-                user,
-                setCookies: [],
-                setHeaders: [],
-            }
-        },
+//! This code is important (be careful trying to remove it).
+//! `global.schema` name is required because of some deep graphql schema shit
+if (!(global as any).schema) {
+    ;(global as any).schema = buildSchemaSync({
+        resolvers: [HelloResolver],
+        validate: false,
     })
 }
+const schema = (global as any).schema
 
-const manager = getConnectionManager()
-let conn: Connection
+/**
+ * Returns either old or new connection to the database
+ */
+const getConnection = async () => {
+    const manager = getConnectionManager()
+    let connection: Connection
 
-export async function handler(
-    event: APIGatewayEvent,
-    context: Context,
-    callback: Callback<APIGatewayProxyResult>
-) {
     if (manager.has("default")) {
-        conn = manager.get("default")
+        connection = manager.get("default")
     } else {
-        conn = await createConnection({
+        connection = await createConnection({
             type: "postgres",
             host: "localhost",
             port: 5432,
             username: "admin",
             password: "admin",
             database: "db",
-            entities: ["lib/src/entities/*.js"],
+            entities: [".build/src/entities/**/*.js"],
             synchronize: false,
             logging: "all",
         })
     }
-    if (!conn.isConnected) {
-        await conn.connect()
+    if (!connection.isConnected) {
+        await connection.connect()
     }
-    const server = await getServer()
-    server.createHandler({
-        cors: {
-            origin: true,
-            credentials: true,
-        },
-    })(event, context, callback)
+    return connection
+}
+
+const server = new ApolloServer({
+    schema,
+    plugins: [httpHeadersPlugin],
+    context: async ({
+        event,
+        context,
+    }: ApolloContext): Promise<MyApolloContext> => {
+        const connection = await getConnection()
+        let user: TokenData = { email: null, id: null }
+        try {
+            const jwt = event.headers.Cookie.match(/jwt=.*?(?=;|$)/m)[0].slice(
+                4
+            )
+            user = verify(jwt, process.env.JWT_SECRET) as TokenData
+        } catch {}
+        return {
+            connection,
+            event,
+            context,
+            user,
+            setCookies: [],
+            setHeaders: [],
+        }
+    },
+})
+const handler = server.createHandler({
+    cors: {
+        origin: true,
+        credentials: true,
+    },
+})
+
+//! Another stuff I don't quite understand, but without it async handler doesn't work
+const runHandler = (event, context, handler) =>
+    new Promise((resolve, reject) => {
+        const callback = (error, body) =>
+            error ? reject(error) : resolve(body)
+
+        handler(event, context, callback)
+    })
+
+exports.handler = async (event: APIGatewayEvent, context: Context) => {
+    try {
+        return await runHandler(event, context, handler)
+    } catch (e) {
+        console.error(e)
+    }
 }
