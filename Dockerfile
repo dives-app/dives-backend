@@ -12,10 +12,10 @@ ADD yarn.lock ./yarn.lock
 ADD tsconfig.json ./tsconfig.json
 ADD serverless-sample.yml ./serverless.yml
 ADD .env-sample ./.env
-ADD ormconfig.json ./ormconfig.json
+ADD ormconfig-sample.json ./ormconfig.json
 
 RUN yarn
+RUN ["npx", "typeorm", "migration:run"]
 
 EXPOSE 3000
-
 CMD npm run dev -- -o 0.0.0.0
