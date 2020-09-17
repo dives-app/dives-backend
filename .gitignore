@@ -8,7 +8,7 @@ node_modules
 .vscode
 serverless.yml
 .env
-ormconfig.json
+ormconfig.js
 
 # TypeScript output
 .build
