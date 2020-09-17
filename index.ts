@@ -8,7 +8,11 @@ import { ApolloContext, Context as MyApolloContext, TokenData } from "./types"
 import { buildSchemaSync } from "type-graphql"
 import { APIGatewayEvent, Context } from "aws-lambda"
 import { HelloResolver } from "./src/resolvers/example"
+import { config as getEnv } from "dotenv"
 
+getEnv()
+
+const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
 if (!(global as any).schema) {
@@ -31,11 +35,11 @@ const getConnection = async () => {
     } else {
         connection = await createConnection({
             type: "postgres",
-            host: "localhost",
-            port: 5432,
-            username: "admin",
-            password: "admin",
-            database: "db",
+            host: DB_HOST,
+            port: parseInt(DB_PORT),
+            username: DB_USER,
+            password: DB_PASSWORD,
+            database: DB_NAME,
             entities: [".build/src/entities/**/*.js"],
             synchronize: false,
             logging: "all",
