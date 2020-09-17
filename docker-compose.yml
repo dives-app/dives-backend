@@ -17,3 +17,10 @@ services:
     restart: always
     ports:
       - 8080:8080
+
+  backend:
+    build:
+      context: "."
+    restart: always
+    ports:
+      - 3000:3000
