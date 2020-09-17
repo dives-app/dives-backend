@@ -5,6 +5,7 @@
 
 ## Running
 To start containers use `docker-compose up`
+
 To stop containers use `docker-compose down`
 
-If you want to start docker without displaying everything in the terminal run as detached with `docker-compose up -d`
+Want to hide messy logs? Use `docker-compose up -d`
