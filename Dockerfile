@@ -18,4 +18,4 @@ RUN yarn
 RUN ["npm", "run", "build"]
 
 EXPOSE 3000
-CMD npx typeorm migration:run && npm run dev -- -o 0.0.0.0
+CMD npx typeorm migration:run && npm run serve -- -o 0.0.0.0

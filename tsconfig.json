@@ -8,7 +8,7 @@
     "noUnusedParameters": true,
     "sourceMap": true,
     "target": "es2017",
-    "outDir": ".build",
+    "outDir": "build",
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
@@ -17,7 +17,7 @@
   "exclude": [
     "node_modules/**/*",
     ".serverless/**/*",
-    ".webpack/**/*",
+    "build/**/*",
     "_warmup/**/*",
     ".vscode/**/*"
   ]

@@ -11,8 +11,8 @@ module.exports = {
   database: DB_NAME,
   synchronize: true,
   logging: false,
-  entities: [".build/src/entities/**/*.js"],
-  migrations: [".build/src/migrations/**/*.js"],
+  entities: ["build/src/entities/**/*.js"],
+  migrations: ["build/src/migrations/**/*.js"],
   cli: {
     migrationsDir: "src/migrations",
   },
