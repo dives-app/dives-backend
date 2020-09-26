@@ -9,6 +9,5 @@ export const validatePassword = (password: string) => {
   // Contain at least one special character (\W)
   // Has at least length of 8 characters
   const passwordRegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}/;
-  if (passwordRegExp.test(password)) return true;
-  return false;
+  return passwordRegExp.test(password);
 };
