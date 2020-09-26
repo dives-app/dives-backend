@@ -21,4 +21,8 @@ API runs on `http://localhost:3000/dev/graphql`
 ## Developing backend
 
 * Install dependencies `npm install`
+* Edit sample config files
+    * `serverless-sample.yml` -> `serverless.yml`
+    * `.env-sample` -> `.env`
+    * `ormconfig.sample.js` -> `ormconfig.js`
 * Run `npm run dev`. It starts the database and `Adminer` using docker-compose and starts `serverless offline` with `nodemon` for reliading
