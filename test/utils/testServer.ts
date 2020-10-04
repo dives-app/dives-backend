@@ -1,7 +1,7 @@
 import { ApolloServer } from "apollo-server-lambda";
 import { ApolloContext, TokenData, Context } from "../../types";
 import { buildSchemaSync } from "type-graphql";
-import { UserResolver } from "../../src/resolvers/user";
+import { UserResolver } from "../../src/resolvers/UserResolver";
 import { Connection, createConnection, getConnectionManager } from "typeorm";
 import { config as getEnv } from "dotenv";
 

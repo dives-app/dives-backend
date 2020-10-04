@@ -61,6 +61,7 @@ export class User extends BaseEntity {
   @OneToMany(() => Account, (account) => account.owner)
   accounts: Account[];
 
+  @Field(() => [BudgetMembership])
   @OneToMany(() => BudgetMembership, (membership) => membership.user)
   budgetMembership: BudgetMembership[];
 

@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Category } from "./Category";
 import { Transaction } from "./Transaction";
@@ -7,7 +13,7 @@ import { CycleTransaction } from "./CycleTransaction";
 
 @ObjectType()
 @Entity()
-export class Budget {
+export class Budget extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ type: "uuid" })
   id: string;
@@ -17,7 +23,13 @@ export class Budget {
   name: string;
 
   @Field({ nullable: true })
-  @Column("money", { nullable: true })
+  @Column("money", {
+    nullable: true,
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string) => moneyString.replace(/,/g, "").slice(1),
+    },
+  })
   limit: number;
 
   @Field(() => [Category])
@@ -32,6 +44,7 @@ export class Budget {
   @OneToMany(() => CycleTransaction, (transaction) => transaction.budget)
   cycleTransactions: CycleTransaction[];
 
+  @Field(() => [BudgetMembership])
   @OneToMany(() => BudgetMembership, (membership) => membership.budget)
   membership: BudgetMembership[];
 }

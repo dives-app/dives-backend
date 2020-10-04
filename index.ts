@@ -7,17 +7,18 @@ import { verify } from "jsonwebtoken";
 import { ApolloContext, Context as MyApolloContext, TokenData } from "./types";
 import { buildSchemaSync } from "type-graphql";
 import { APIGatewayEvent, Context } from "aws-lambda";
-import { UserResolver } from "./src/resolvers/user";
+import { UserResolver } from "./src/resolvers/UserResolver";
 import { config as getEnv } from "dotenv";
+import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 
 getEnv();
-
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
+
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
 if (!(global as any).schema) {
   (global as any).schema = buildSchemaSync({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, BudgetResolver],
     validate: false,
   });
 }
@@ -41,7 +42,7 @@ const getConnection = async () => {
       password: DB_PASSWORD,
       database: DB_NAME,
       entities: ["build/src/entities/**/*.js"],
-      synchronize: false,
+      synchronize: true,
       logging: "all",
     });
   }

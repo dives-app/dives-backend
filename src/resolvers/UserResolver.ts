@@ -1,24 +1,31 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import argon2 from "argon2";
 import { User } from "../entities/User";
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { Context } from "../../types";
-import { LoginInput } from "./LoginInput";
+import { UserInput, UsernamePasswordInput } from "./UserInput";
 import { ApolloError } from "apollo-server-errors";
 import { setCredentialCookie } from "../../util/setCredentialCookie";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
 
 @Resolver(() => User)
 export class UserResolver {
   @Query(() => User)
-  async user(@Ctx() { user }: Context): Promise<User> {
-    const currentUser = await User.findOne({ where: { id: user.id } });
+  async user(
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<User> {
+    const currentUser = await User.findOne({
+      where: { id: user.id },
+      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+    });
     if (!currentUser) throw new ApolloError("No user logged in");
     return currentUser;
   }
 
   @Query(() => User)
   async login(
-    @Arg("options") options: LoginInput,
+    @Arg("options") options: UserInput,
     @Ctx() { setCookies }: Context
   ): Promise<User> {
     const userWithSameEmail = await User.findOne({
@@ -71,4 +78,7 @@ export class UserResolver {
     setCredentialCookie(tokenData, setCookies);
     return user;
   }
+
+  // Update Account
+  // Delete Account (email confirmation in the future)
 }
