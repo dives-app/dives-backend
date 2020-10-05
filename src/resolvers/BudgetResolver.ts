@@ -6,7 +6,6 @@ import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 import { BudgetInput, NewBudgetInput, UpdateBudgetInput } from "./BudgetInput";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
-import { getConnection } from "typeorm";
 
 @Resolver(() => Budget)
 export class BudgetResolver {
@@ -76,6 +75,9 @@ export class BudgetResolver {
       where: { budget: id, user: user.id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
+    if (!budgetMembership) {
+      throw new ApolloError("There is no budget with that id");
+    }
     if (
       budgetMembership.accessLevel !== AccessLevel.OWNER &&
       budgetMembership.accessLevel !== AccessLevel.EDITOR

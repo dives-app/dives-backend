@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   Entity,
   ManyToOne,
@@ -19,7 +20,7 @@ enum AccountType {
 
 @ObjectType()
 @Entity()
-export class Account {
+export class Account extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ type: "uuid" })
   id: string;

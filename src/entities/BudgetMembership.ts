@@ -15,7 +15,6 @@ export class BudgetMembership extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.budgetMembership, {
     primary: true,
-    onDelete: "CASCADE",
   })
   user: User;
 
