@@ -42,6 +42,6 @@ export class Debt {
   color: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.debts)
+  @ManyToOne(() => User, (user) => user.debts, { onDelete: "CASCADE" })
   user: User;
 }

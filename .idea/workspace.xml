@@ -23,21 +23,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a94ee4-2509-4f95-9f00-8b987fe0a142" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/resolvers/BudgetInput.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/resolvers/TransactionInput.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/resolvers/TransactionResolver.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/getRelationSubfields.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/migrations/1601894769527-initial.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/entities/Budget.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Budget.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Account.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Account.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/entities/BudgetMembership.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/BudgetMembership.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/CycleTransaction.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/CycleTransaction.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Debt.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Debt.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Notification.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Notification.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Purchase.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Purchase.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/entities/Transaction.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Transaction.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/entities/User.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/User.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/LoginInput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/UserInput.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/UsernamePasswordInput.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/UserResolver.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/utils/testServer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/test/utils/testServer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1600419648074-initial.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resolvers/BudgetInput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/BudgetInput.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resolvers/UserResolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/UserResolver.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,16 +92,17 @@
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/old_resolvers" />
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/resolvers" />
+      <recent name="$PROJECT_DIR$" />
     </key>
     <key name="es6.move.members.recent.items">
       <recent name="$PROJECT_DIR$/util/setCredentialCookie.ts" />
     </key>
-    <key name="CopyFile.RECENT_KEYS">
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/resolvers" />
-      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/old_resolvers" />
     </key>
   </component>
   <component name="RunAnythingCache">
@@ -177,7 +178,8 @@
       <workItem from="1601118041232" duration="3193000" />
       <workItem from="1601148267674" duration="76000" />
       <workItem from="1601726458326" duration="5859000" />
-      <workItem from="1601806005264" duration="11449000" />
+      <workItem from="1601806005264" duration="11599000" />
+      <workItem from="1601882418847" duration="8457000" />
     </task>
     <task id="LOCAL-00001" summary="Initially refactor backend to PostgreSQL">
       <created>1599859508118</created>

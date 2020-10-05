@@ -56,8 +56,8 @@ export class Transaction extends BaseEntity {
   merchant: Merchant;
 
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (recipient) => recipient.transactions, {
+  @ManyToOne(() => User, (creator) => creator.transactions, {
     nullable: true,
   })
-  user: User;
+  creator: User;
 }

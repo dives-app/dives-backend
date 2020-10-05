@@ -41,8 +41,8 @@ const getConnection = async () => {
       username: DB_USER,
       password: DB_PASSWORD,
       database: DB_NAME,
-      entities: ["build/src/entities/**/*.js"],
-      synchronize: true,
+      entities: [__dirname + "/src/entities/**/*.js"],
+      synchronize: false,
       logging: "all",
     });
   }

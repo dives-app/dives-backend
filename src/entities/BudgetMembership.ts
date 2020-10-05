@@ -4,32 +4,29 @@ import { User } from "./User";
 import { Budget } from "./Budget";
 
 export enum AccessLevel {
-  OWNER,
-  EDITOR,
-  OBSERVER,
+  OWNER = "OWNER",
+  EDITOR = "EDITOR",
+  OBSERVER = "OBSERVER",
 }
 
 @ObjectType()
 @Entity()
 export class BudgetMembership extends BaseEntity {
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.budgetMembership, { primary: true })
+  @ManyToOne(() => User, (user) => user.budgetMembership, {
+    primary: true,
+    onDelete: "CASCADE",
+  })
   user: User;
 
   @Field(() => Budget)
-  @ManyToOne(() => Budget, (budget) => budget.membership, { primary: true })
+  @ManyToOne(() => Budget, (budget) => budget.membership, {
+    primary: true,
+    onDelete: "CASCADE",
+  })
   budget: Budget;
 
   @Field(() => String)
-  @Column({
-    transformer: {
-      to: (accessLevel: number) => accessLevel,
-      from: (accessLevel: AccessLevel) => {
-        if (accessLevel === AccessLevel.OBSERVER) return "OBSERVER";
-        if (accessLevel === AccessLevel.OWNER) return "OWNER";
-        if (accessLevel === AccessLevel.EDITOR) return "EDITOR";
-      },
-    },
-  })
+  @Column()
   accessLevel: AccessLevel;
 }

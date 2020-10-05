@@ -26,11 +26,21 @@ export class UserResolver {
   @Query(() => User)
   async login(
     @Arg("options") options: UserInput,
-    @Ctx() { setCookies }: Context
+    @Ctx() { setCookies }: Context,
+    @Info() info: GraphQLResolveInfo
   ): Promise<User> {
-    const userWithSameEmail = await User.findOne({
-      where: { email: options.email },
-    });
+    let userWithSameEmail;
+    try {
+      userWithSameEmail = await User.findOne({
+        where: { email: options.email },
+        relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      });
+    } catch (e) {
+      throw new ApolloError(e);
+    }
+    if (!userWithSameEmail) {
+      throw new ApolloError("No account with provided email");
+    }
     const validPassword = await argon2.verify(
       userWithSameEmail.password,
       options.password

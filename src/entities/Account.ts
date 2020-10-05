@@ -65,7 +65,9 @@ export class Account {
   billingPeriod: number;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.accounts)
+  @ManyToOne(() => User, (user) => user.accounts, {
+    onDelete: "CASCADE",
+  })
   owner: User;
 
   @Field(() => [Transaction])

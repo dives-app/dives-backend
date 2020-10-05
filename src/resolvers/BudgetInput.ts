@@ -13,3 +13,13 @@ export class NewBudgetInput {
   @Field({ nullable: true })
   limit?: number;
 }
+
+@InputType()
+export class UpdateBudgetInput {
+  @Field()
+  id: string;
+  @Field({ nullable: true })
+  name: string;
+  @Field({ nullable: true })
+  limit?: number;
+}

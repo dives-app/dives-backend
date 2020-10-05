@@ -54,8 +54,8 @@ export class CycleTransaction {
   merchant: Merchant;
 
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (recipient) => recipient.cycleTransactions, {
+  @ManyToOne(() => User, (creator) => creator.cycleTransactions, {
     nullable: true,
   })
-  user: User;
+  creator: User;
 }
