@@ -23,13 +23,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a94ee4-2509-4f95-9f00-8b987fe0a142" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/resolvers/CategoryResolver.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/updateObject.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/entities/Category.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Category.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +177,7 @@
       <workItem from="1601882418847" duration="8540000" />
       <workItem from="1601905599531" duration="2000000" />
       <workItem from="1601909575107" duration="23000" />
-      <workItem from="1602574449562" duration="6096000" />
+      <workItem from="1602574449562" duration="6332000" />
     </task>
     <task id="LOCAL-00001" summary="Initially refactor backend to PostgreSQL">
       <created>1599859508118</created>

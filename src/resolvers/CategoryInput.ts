@@ -29,14 +29,14 @@ export class NewCategoryInput {
 export class UpdateCategoryInput {
   @Field()
   id: string;
-  @Field()
-  name: string;
+  @Field({ nullable: true })
+  name?: string;
   @Field({ nullable: true })
   limit?: number;
-  @Field()
-  type: CategoryType;
-  @Field()
-  icon: string; // TODO: FILE
-  @Field()
-  color: string;
+  @Field({ nullable: true })
+  type?: CategoryType;
+  @Field({ nullable: true })
+  icon?: string; // TODO: FILE
+  @Field({ nullable: true })
+  color?: string;
 }
