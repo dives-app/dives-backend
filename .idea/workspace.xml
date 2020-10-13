@@ -23,15 +23,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a94ee4-2509-4f95-9f00-8b987fe0a142" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/migrations/1601907012382-initial.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/resolvers/CategoryResolver.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/updateObject.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/entities/Account.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Account.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/entities/BudgetMembership.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/BudgetMembership.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/entities/Category.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/entities/Category.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/migrations/1601894769527-initial.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/1601894769527-initial.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/BudgetResolver.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/TransactionInput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/TransactionInput.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/TransactionResolver.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/TransactionResolver.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +39,13 @@
   <component name="ChangesViewManager">
     <option name="groupingKeys">
       <option value="directory" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
     </option>
   </component>
   <component name="Git.Settings">
@@ -67,7 +72,7 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/resolvers" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -87,6 +92,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/migrations" />
       <recent name="$PROJECT_DIR$/src/resolvers" />
       <recent name="$PROJECT_DIR$/src" />
       <recent name="$PROJECT_DIR$/old_resolvers" />
@@ -174,7 +180,9 @@
       <workItem from="1601726458326" duration="5859000" />
       <workItem from="1601806005264" duration="11599000" />
       <workItem from="1601882418847" duration="8540000" />
-      <workItem from="1601905599531" duration="1791000" />
+      <workItem from="1601905599531" duration="2000000" />
+      <workItem from="1601909575107" duration="23000" />
+      <workItem from="1602574449562" duration="6096000" />
     </task>
     <task id="LOCAL-00001" summary="Initially refactor backend to PostgreSQL">
       <created>1599859508118</created>
@@ -371,11 +379,11 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="254" height="200" key="ShowFilterAction_Filter_Popup/0.0.1440.900@0.0.1440.900" timestamp="1600070344510" />
-    <state width="500" height="445" key="SwitcherDM" timestamp="1600422831153">
+    <state width="500" height="445" key="SwitcherDM" timestamp="1602582440049">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state width="500" height="445" key="SwitcherDM/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1600366691972" />
-    <state width="500" height="445" key="SwitcherDM/0.0.1440.900@0.0.1440.900" timestamp="1600422831153" />
+    <state width="500" height="445" key="SwitcherDM/0.0.1440.900@0.0.1440.900" timestamp="1602582440049" />
     <state x="320" y="190" key="Vcs.Push.Dialog.v2" timestamp="1601022440321">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
@@ -392,15 +400,19 @@
     <state x="420" y="-991" width="798" height="699" key="find.popup/0.0.1440.900/-224.-1080.1920.1080@-224.-1080.1920.1080" timestamp="1601119103929" />
     <state x="483" y="74" width="598" height="548" key="find.popup/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1601906936465" />
     <state x="483" y="74" width="598" height="582" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1600441579021" />
+    <state x="370" y="185" width="700" height="530" key="recent.locations.popup" timestamp="1602579257109">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="370" y="185" width="700" height="530" key="recent.locations.popup/0.0.1440.900@0.0.1440.900" timestamp="1602579257109" />
     <state x="437" y="-769" width="670" height="675" key="run.anything.popup" timestamp="1601119861493">
       <screen x="-224" y="-1080" width="1920" height="1080" />
     </state>
     <state x="437" y="-769" width="670" height="675" key="run.anything.popup/0.0.1440.900/-224.-1080.1920.1080@-224.-1080.1920.1080" timestamp="1601119861493" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1601148361534">
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1602589738498">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="289" y="-845" width="894" height="812" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@-224.-1080.1920.1080" timestamp="1601119847259" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1600367356289" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1601148361534" />
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1601909590736" />
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1602589738498" />
   </component>
 </project>

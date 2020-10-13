@@ -6,6 +6,7 @@ import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 import { BudgetInput, NewBudgetInput, UpdateBudgetInput } from "./BudgetInput";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
+import { updateObject } from "../utils/updateObject";
 
 @Resolver(() => Budget)
 export class BudgetResolver {
@@ -87,8 +88,7 @@ export class BudgetResolver {
       );
     }
     const budget = await Budget.findOne({ where: { id } });
-    if (name !== undefined) budget.name = name;
-    if (limit !== undefined) budget.limit = limit;
+    updateObject(budget, { name, limit });
     await budget.save();
     return budget;
   }

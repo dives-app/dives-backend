@@ -10,6 +10,8 @@ import { APIGatewayEvent, Context } from "aws-lambda";
 import { UserResolver } from "./src/resolvers/UserResolver";
 import { config as getEnv } from "dotenv";
 import { BudgetResolver } from "./src/resolvers/BudgetResolver";
+import { TransactionResolver } from "./src/resolvers/TransactionResolver";
+import { CategoryResolver } from "./src/resolvers/CategoryResolver";
 
 getEnv();
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
@@ -18,7 +20,12 @@ const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
 //! `global.schema` name is required because of some deep graphql schema shit
 if (!(global as any).schema) {
   (global as any).schema = buildSchemaSync({
-    resolvers: [UserResolver, BudgetResolver],
+    resolvers: [
+      UserResolver,
+      BudgetResolver,
+      TransactionResolver,
+      CategoryResolver,
+    ],
     validate: false,
   });
 }

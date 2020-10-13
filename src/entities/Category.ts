@@ -12,7 +12,7 @@ import { Budget } from "./Budget";
 import { Transaction } from "./Transaction";
 import { CycleTransaction } from "./CycleTransaction";
 
-enum CategoryType {
+export enum CategoryType {
   EXPENSE,
   INCOME,
   TRANSFER,
