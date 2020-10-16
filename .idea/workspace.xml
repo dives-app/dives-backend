@@ -23,8 +23,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="49a94ee4-2509-4f95-9f00-8b987fe0a142" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/resolvers/CategoryInput.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -177,7 +178,9 @@
       <workItem from="1601882418847" duration="8540000" />
       <workItem from="1601905599531" duration="2000000" />
       <workItem from="1601909575107" duration="23000" />
-      <workItem from="1602574449562" duration="6332000" />
+      <workItem from="1602574449562" duration="6374000" />
+      <workItem from="1602832722066" duration="90000" />
+      <workItem from="1602858851157" duration="2473000" />
     </task>
     <task id="LOCAL-00001" summary="Initially refactor backend to PostgreSQL">
       <created>1599859508118</created>
@@ -403,11 +406,11 @@
       <screen x="-224" y="-1080" width="1920" height="1080" />
     </state>
     <state x="437" y="-769" width="670" height="675" key="run.anything.popup/0.0.1440.900/-224.-1080.1920.1080@-224.-1080.1920.1080" timestamp="1601119861493" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1602589738498">
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1602832864478">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="289" y="-845" width="894" height="812" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@-224.-1080.1920.1080" timestamp="1601119847259" />
-    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1601909590736" />
+    <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900/-224.-1080.1920.1080@0.0.1440.900" timestamp="1602832864478" />
     <state x="385" y="196" width="670" height="676" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1602589738498" />
   </component>
 </project>

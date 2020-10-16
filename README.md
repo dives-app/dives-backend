@@ -12,11 +12,19 @@ To stop containers use `docker-compose down`
 
 Want to hide messy logs? Use `docker-compose up -d`
 
-## Accessing GraphQL API
+## Updating backend
 
-API runs on `http://localhost:3000/dev/graphql`
+To update the backend run 
+```
+git pull
+docker-compose up --build
+```
 
-`Adminer` to explore the database runs on `http://localhost:8080`
+## Endpoints
+
+GraphQL API runs on `http://localhost:3000/dev/graphql`
+
+`Adminer` - a tool to explore the database runs on `http://localhost:8080`
 
 ## Developing backend
 
