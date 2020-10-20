@@ -11,7 +11,7 @@ import { Transaction } from "./Transaction";
 import { User } from "./User";
 import { CycleTransaction } from "./CycleTransaction";
 
-enum AccountType {
+export enum AccountType {
   DEPOSIT,
   SAVINGS_ACCOUNT,
   PERSONAL_ACCOUNT,

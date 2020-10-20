@@ -19,7 +19,7 @@ export class UpdateBudgetInput {
   @Field()
   id: string;
   @Field({ nullable: true })
-  name: string;
+  name?: string;
   @Field({ nullable: true })
   limit?: number;
 }

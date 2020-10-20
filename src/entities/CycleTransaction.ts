@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Category } from "./Category";
 import { Account } from "./Account";
@@ -8,7 +14,7 @@ import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class CycleTransaction {
+export class CycleTransaction extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ type: "uuid" })
   id: string;
@@ -38,7 +44,9 @@ export class CycleTransaction {
   category: Category;
 
   @Field(() => Account)
-  @ManyToOne(() => Account, (account) => account.cycleTransaction)
+  @ManyToOne(() => Account, (account) => account.cycleTransaction, {
+    nullable: true,
+  })
   account: Account;
 
   @Field(() => Budget, { nullable: true })
