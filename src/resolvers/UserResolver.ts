@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 import { Context } from "../../types";
 import { UserInput, UsernamePasswordInput } from "./UserInput";
 import { ApolloError } from "apollo-server-errors";
-import { setCredentialCookie } from "../../util/setCredentialCookie";
+import { setCredentialCookie } from "../../utils/setCredentialCookie";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
 

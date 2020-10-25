@@ -66,7 +66,7 @@ export class User extends BaseEntity {
   budgetMembership: BudgetMembership[];
 
   @Field(() => [Debt])
-  @OneToMany(() => Debt, (debt) => debt.user)
+  @OneToMany(() => Debt, (debt) => debt.owner)
   debts: Debt[];
 
   @Field(() => [Notification])

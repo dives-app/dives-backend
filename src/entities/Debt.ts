@@ -1,10 +1,16 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Debt {
+export class Debt extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn({ type: "uuid" })
   id: string;
@@ -19,7 +25,7 @@ export class Debt {
 
   @Field({ nullable: true })
   @Column("float", { nullable: true })
-  interestRate: string;
+  interestRate: number;
 
   @Field()
   @Column("date")
@@ -43,5 +49,5 @@ export class Debt {
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.debts, { onDelete: "CASCADE" })
-  user: User;
+  owner: User;
 }

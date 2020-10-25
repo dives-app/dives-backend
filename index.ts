@@ -12,6 +12,7 @@ import { config as getEnv } from "dotenv";
 import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 import { TransactionResolver } from "./src/resolvers/TransactionResolver";
 import { CategoryResolver } from "./src/resolvers/CategoryResolver";
+import { DebtResolver } from "./src/resolvers/DebtResolver";
 
 getEnv();
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
@@ -25,6 +26,7 @@ if (!(global as any).schema) {
       BudgetResolver,
       TransactionResolver,
       CategoryResolver,
+      DebtResolver,
     ],
     validate: false,
   });
