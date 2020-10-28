@@ -14,6 +14,7 @@ import { CycleTransaction } from "./CycleTransaction";
 import { Debt } from "./Debt";
 import { Notification } from "./Notification";
 import { Purchase } from "./Purchase";
+import { Merchant } from "./Merchant";
 
 @ObjectType()
 @Entity()
@@ -48,6 +49,10 @@ export class User extends BaseEntity {
   @Field(() => [Category])
   @OneToMany(() => Category, (category) => category.ownerUser)
   categories: Category[];
+
+  @Field(() => [Merchant])
+  @OneToMany(() => Merchant, (merchant) => merchant.ownerUser)
+  merchants: Merchant[];
 
   @Field(() => [Transaction])
   @OneToMany(() => Transaction, (transaction) => transaction.creator)

@@ -1,11 +1,17 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Plan } from "./Plan";
 import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Purchase {
+export class Purchase extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id: string;
