@@ -28,7 +28,7 @@ if (!(global as any).schema) {
       CategoryResolver,
       DebtResolver,
     ],
-    validate: false,
+    validate: true,
   });
 }
 const schema = (global as any).schema;

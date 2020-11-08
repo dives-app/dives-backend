@@ -5,7 +5,7 @@ WORKDIR /backend
 
 ADD src ./src
 ADD types ./types
-ADD utils ./util
+ADD utils ./utils
 ADD index.ts ./index.ts
 ADD package.json ./package.json
 ADD yarn.lock ./yarn.lock

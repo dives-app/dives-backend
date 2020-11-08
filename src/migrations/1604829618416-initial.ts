@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class initial1601894769527 implements MigrationInterface {
-  name = "initial1601894769527";
+export class initial1604829618416 implements MigrationInterface {
+  name = "initial1604829618416";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
     await queryRunner.query(
-      `CREATE TABLE "merchant" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, CONSTRAINT "PK_9a3850e0537d869734fc9bff5d6" PRIMARY KEY ("id"))`
+      `CREATE TABLE "merchant" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "ownerUserId" uuid, "ownerBudgetId" uuid, CONSTRAINT "PK_9a3850e0537d869734fc9bff5d6" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "cycle_transaction" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying, "amount" money, "date" date NOT NULL, "period" integer NOT NULL, "description" character varying, "categoryId" uuid, "accountId" uuid, "budgetId" uuid, "merchantId" integer, "creatorId" uuid, CONSTRAINT "PK_b35202ffa7f65755c14a522b513" PRIMARY KEY ("id"))`
@@ -18,7 +18,7 @@ export class initial1601894769527 implements MigrationInterface {
       `CREATE TABLE "budget_membership" ("accessLevel" character varying NOT NULL, "userId" uuid NOT NULL, "budgetId" uuid NOT NULL, CONSTRAINT "PK_9f23d83928e9d68d5003477e676" PRIMARY KEY ("userId", "budgetId"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "debt" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, "currency" character varying NOT NULL, "interestRate" double precision, "endDate" date NOT NULL, "description" character varying, "balance" money NOT NULL, "iconUrl" character varying NOT NULL, "color" character varying NOT NULL, "userId" uuid, CONSTRAINT "PK_f0904ec85a9c8792dded33608a8" PRIMARY KEY ("id"))`
+      `CREATE TABLE "debt" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, "currency" character varying NOT NULL, "interestRate" double precision, "endDate" date NOT NULL, "description" character varying, "balance" money NOT NULL, "iconUrl" character varying NOT NULL, "color" character varying NOT NULL, "ownerId" uuid, CONSTRAINT "PK_f0904ec85a9c8792dded33608a8" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "notification" ("id" SERIAL NOT NULL, "text" character varying NOT NULL, "action" character varying, "read" boolean NOT NULL, "time" TIMESTAMP WITH TIME ZONE NOT NULL, "userId" uuid, CONSTRAINT "PK_705b6c7cdf9b2c2ff7ac7872cb7" PRIMARY KEY ("id"))`
@@ -42,6 +42,12 @@ export class initial1601894769527 implements MigrationInterface {
       `CREATE TABLE "account" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, "currency" character varying NOT NULL, "description" character varying, "balance" money NOT NULL, "iconUrl" character varying NOT NULL, "color" character varying NOT NULL, "type" integer NOT NULL, "interestRate" double precision, "billingDate" date, "billingPeriod" integer, "ownerId" uuid, CONSTRAINT "PK_54115ee388cdb6d86bb4bf5b2ea" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
+      `ALTER TABLE "merchant" ADD CONSTRAINT "FK_f1ea7111b22e49d8c09a7917aa6" FOREIGN KEY ("ownerUserId") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "merchant" ADD CONSTRAINT "FK_a986caecf3c941ebd3515f9221d" FOREIGN KEY ("ownerBudgetId") REFERENCES "budget"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
+    );
+    await queryRunner.query(
       `ALTER TABLE "cycle_transaction" ADD CONSTRAINT "FK_182e22ac7bf059beb0d0d138e3f" FOREIGN KEY ("categoryId") REFERENCES "category"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
     await queryRunner.query(
@@ -57,13 +63,13 @@ export class initial1601894769527 implements MigrationInterface {
       `ALTER TABLE "cycle_transaction" ADD CONSTRAINT "FK_8952f77db7ce00ba6c143b94274" FOREIGN KEY ("creatorId") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
     await queryRunner.query(
-      `ALTER TABLE "budget_membership" ADD CONSTRAINT "FK_38890a25ba5f67ea8250f2722e7" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`
+      `ALTER TABLE "budget_membership" ADD CONSTRAINT "FK_38890a25ba5f67ea8250f2722e7" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
     await queryRunner.query(
       `ALTER TABLE "budget_membership" ADD CONSTRAINT "FK_1566b71ab838d920cfc9b00c46f" FOREIGN KEY ("budgetId") REFERENCES "budget"("id") ON DELETE CASCADE ON UPDATE NO ACTION`
     );
     await queryRunner.query(
-      `ALTER TABLE "debt" ADD CONSTRAINT "FK_ac2421cbb92ab160bea0a922491" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`
+      `ALTER TABLE "debt" ADD CONSTRAINT "FK_edded84017256ec78972458c3a3" FOREIGN KEY ("ownerId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`
     );
     await queryRunner.query(
       `ALTER TABLE "notification" ADD CONSTRAINT "FK_1ced25315eb974b73391fb1c81b" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`
@@ -135,7 +141,7 @@ export class initial1601894769527 implements MigrationInterface {
       `ALTER TABLE "notification" DROP CONSTRAINT "FK_1ced25315eb974b73391fb1c81b"`
     );
     await queryRunner.query(
-      `ALTER TABLE "debt" DROP CONSTRAINT "FK_ac2421cbb92ab160bea0a922491"`
+      `ALTER TABLE "debt" DROP CONSTRAINT "FK_edded84017256ec78972458c3a3"`
     );
     await queryRunner.query(
       `ALTER TABLE "budget_membership" DROP CONSTRAINT "FK_1566b71ab838d920cfc9b00c46f"`
@@ -157,6 +163,12 @@ export class initial1601894769527 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "cycle_transaction" DROP CONSTRAINT "FK_182e22ac7bf059beb0d0d138e3f"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "merchant" DROP CONSTRAINT "FK_a986caecf3c941ebd3515f9221d"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "merchant" DROP CONSTRAINT "FK_f1ea7111b22e49d8c09a7917aa6"`
     );
     await queryRunner.query(`DROP TABLE "account"`);
     await queryRunner.query(`DROP TABLE "transaction"`);
