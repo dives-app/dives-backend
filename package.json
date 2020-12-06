@@ -10,7 +10,7 @@
     "debug": "SLS_DEBUG=* serverless offline",
     "serve": "serverless offline",
     "dev": "npm run dev:db && npm run dev:backend & npm run watch",
-    "dev:backend": "nodemon --exec serverless offline",
+    "dev:backend": "nodemon",
     "dev:db": "docker-compose -f docker-compose-dev.yml up -d"
   },
   "dependencies": {

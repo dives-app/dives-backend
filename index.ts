@@ -13,6 +13,18 @@ import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 import { TransactionResolver } from "./src/resolvers/TransactionResolver";
 import { CategoryResolver } from "./src/resolvers/CategoryResolver";
 import { DebtResolver } from "./src/resolvers/DebtResolver";
+import { Account } from "./src/entities/Account";
+import { Budget } from "./src/entities/Budget";
+import { BudgetMembership } from "./src/entities/BudgetMembership";
+import { Category } from "./src/entities/Category";
+import { CycleTransaction } from "./src/entities/CycleTransaction";
+import { Debt } from "./src/entities/Debt";
+import { Merchant } from "./src/entities/Merchant";
+import { Notification } from "./src/entities/Notification";
+import { Plan } from "./src/entities/Plan";
+import { Purchase } from "./src/entities/Purchase";
+import { Transaction } from "./src/entities/Transaction";
+import { User } from "./src/entities/User";
 
 getEnv();
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
@@ -50,7 +62,20 @@ const getConnection = async () => {
       username: DB_USER,
       password: DB_PASSWORD,
       database: DB_NAME,
-      entities: [__dirname + "/src/entities/**/*.js"],
+      entities: [
+        Account,
+        Budget,
+        BudgetMembership,
+        Category,
+        CycleTransaction,
+        Debt,
+        Merchant,
+        Notification,
+        Plan,
+        Purchase,
+        Transaction,
+        User,
+      ],
       synchronize: false,
       logging: "all",
     });
