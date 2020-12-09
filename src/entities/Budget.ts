@@ -28,7 +28,8 @@ export class Budget extends BaseEntity {
     nullable: true,
     transformer: {
       to: (moneyNumber: number) => moneyNumber,
-      from: (moneyString: string) => moneyString.replace(/,/g, "").slice(1),
+      from: (moneyString: string | null) =>
+        moneyString?.replace(/,/g, "").slice(1),
     },
   })
   limit: number;

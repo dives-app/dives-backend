@@ -89,8 +89,7 @@ export class BudgetResolver {
     }
     const budget = await Budget.findOne({ where: { id } });
     updateObject(budget, { name, limit });
-    await budget.save();
-    return budget;
+    return budget.save();
   }
 
   @Mutation(() => Budget)
