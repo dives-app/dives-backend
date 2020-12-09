@@ -4,6 +4,6 @@
   "watch": ["src", "index.ts"],
   "ext": "ts",
   "ignore": "",
-  "exec": "serverless offline --useChildProcesses",
+  "exec": "serverless offline --allowCache",
   "inspect": true
 }

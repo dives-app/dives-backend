@@ -7,8 +7,8 @@
     "watch": "tsc -w",
     "build": "tsc",
     "test": "jest",
-    "debug": "SLS_DEBUG=* serverless offline --useChildProcesses",
-    "serve": "serverless offline --useChildProcesses",
+    "debug": "SLS_DEBUG=* serverless offline --allowCache",
+    "serve": "serverless offline --allowCache",
     "dev": "npm run dev:db && npm run dev:backend & npm run watch",
     "dev:backend": "nodemon",
     "dev:db": "docker-compose -f docker-compose-dev.yml up -d"
