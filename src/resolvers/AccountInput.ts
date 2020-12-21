@@ -32,8 +32,6 @@ export class UpdateAccountInput {
   @Field({ nullable: true })
   name?: string;
   @Field({ nullable: true })
-  limit?: number;
-  @Field({ nullable: true })
   currency?: string;
   @Field({ nullable: true })
   description?: string;

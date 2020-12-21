@@ -29,6 +29,6 @@ export class TransactionResolver {
     }
   }
 
-  // Update Transaction - only members
-  // Delete Transaction - only owner
+  // TODO: Update Transaction - only members
+  // TODO: Delete Transaction - only owner
 }

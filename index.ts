@@ -25,6 +25,11 @@ import { Plan } from "./src/entities/Plan";
 import { Purchase } from "./src/entities/Purchase";
 import { Transaction } from "./src/entities/Transaction";
 import { User } from "./src/entities/User";
+import { AccountResolver } from "./src/resolvers/AccountResolver";
+import { CycleTransactionResolver } from "./src/resolvers/CycleTransactionResolver";
+import { MerchantResolver } from "./src/resolvers/MerchantResolver";
+import { NotificationResolver } from "./src/resolvers/NotificationResolver";
+import { PurchaseResolver } from "./src/resolvers/PurchaseResolver";
 
 getEnv();
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
@@ -34,11 +39,16 @@ const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
 if (!(global as any).schema) {
   (global as any).schema = buildSchemaSync({
     resolvers: [
-      UserResolver,
+      AccountResolver,
       BudgetResolver,
-      TransactionResolver,
       CategoryResolver,
+      CycleTransactionResolver,
       DebtResolver,
+      MerchantResolver,
+      NotificationResolver,
+      PurchaseResolver,
+      TransactionResolver,
+      UserResolver,
     ],
     validate: true,
   });

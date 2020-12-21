@@ -38,6 +38,6 @@ export class CycleTransactionResolver {
     }
   }
 
-  // Update CycleTransaction - only members
-  // Delete CycleTransaction - only owner
+  // TODO: Update CycleTransaction - only members
+  // TODO: Delete CycleTransaction - only owner
 }
