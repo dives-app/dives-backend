@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Transaction } from "../entities/Transaction";
 import { Context } from "../../types";
 import { ApolloError } from "apollo-server-errors";
@@ -13,9 +13,37 @@ import { Budget } from "../entities/Budget";
 import { updateObject } from "../utils/updateObject";
 import { Merchant } from "../entities/Merchant";
 import { AccessLevel } from "../entities/BudgetMembership";
+import { GraphQLResolveInfo } from "graphql";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
 
 @Resolver(() => Transaction)
 export class TransactionResolver {
+  @Query(() => Transaction)
+  async transaction(
+    @Arg("options") { id }: TransactionInput,
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<Transaction> {
+    const transaction = await Transaction.findOne({
+      where: { id },
+      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+    });
+    if (!transaction) {
+      throw new ApolloError("No transaction found");
+    }
+    const membership = transaction.budget.membership.find(
+      (membership) => membership.user.id === user.id
+    );
+    if (
+      transaction.creator.id !== user.id &&
+      membership &&
+      membership.accessLevel !== AccessLevel.OBSERVER
+    ) {
+      throw new ApolloError("No access to edit transaction");
+    }
+    return transaction;
+  }
+
   @Mutation(() => Transaction)
   async createTransaction(
     @Arg("options") options: NewTransactionInput,

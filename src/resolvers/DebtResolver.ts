@@ -1,4 +1,4 @@
-import { Arg, Ctx, Info, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Context } from "../../types";
 import { ApolloError } from "apollo-server-errors";
 import { NewDebtInput } from "./DebtInput";
@@ -11,6 +11,25 @@ import { updateObject } from "../utils/updateObject";
 
 @Resolver(() => Debt)
 export class DebtResolver {
+  @Query(() => Debt)
+  async debt(
+    @Arg("options") { id }: DebtInput,
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<Debt> {
+    const debt = await Debt.findOne({
+      where: { id },
+      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+    });
+    if (!debt) {
+      throw new ApolloError("No debt found");
+    }
+    if (debt.owner.id !== user.id) {
+      throw new ApolloError("No access to this debt");
+    }
+    return debt;
+  }
+
   @Mutation(() => Debt)
   async createDebt(
     @Arg("options") options: NewDebtInput,

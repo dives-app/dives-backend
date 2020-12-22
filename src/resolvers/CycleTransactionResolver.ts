@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { CycleTransaction } from "../entities/CycleTransaction";
 import { Context } from "../../types";
 import { ApolloError } from "apollo-server-errors";
@@ -13,9 +13,37 @@ import { AccessLevel } from "../entities/BudgetMembership";
 import { updateObject } from "../utils/updateObject";
 import { Budget } from "../entities/Budget";
 import { Merchant } from "../entities/Merchant";
+import { GraphQLResolveInfo } from "graphql";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
 
 @Resolver(() => CycleTransaction)
 export class CycleTransactionResolver {
+  @Query(() => CycleTransaction)
+  async cycleTransaction(
+    @Arg("options") { id }: CycleTransactionInput,
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<CycleTransaction> {
+    const cycleTransaction = await CycleTransaction.findOne({
+      where: { id },
+      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+    });
+    if (!cycleTransaction) {
+      throw new ApolloError("No cycle transaction found");
+    }
+    const membership = cycleTransaction.budget.membership.find(
+      (membership) => membership.user.id === user.id
+    );
+    if (
+      cycleTransaction.creator.id !== user.id &&
+      membership &&
+      membership.accessLevel !== AccessLevel.OBSERVER
+    ) {
+      throw new ApolloError("No access to edit cycle transaction");
+    }
+    return cycleTransaction;
+  }
+
   @Mutation(() => CycleTransaction)
   async createCycleTransaction(
     @Arg("options") options: NewCycleTransactionInput,

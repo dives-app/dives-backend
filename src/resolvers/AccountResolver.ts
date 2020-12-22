@@ -1,4 +1,4 @@
-import { Arg, Ctx, Info, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Account } from "../entities/Account";
 import { Context } from "../../types";
 import { ApolloError } from "apollo-server-errors";
@@ -14,6 +14,25 @@ import { GraphQLResolveInfo } from "graphql";
 
 @Resolver(() => Account)
 export class AccountResolver {
+  @Query(() => Account)
+  async account(
+    @Arg("options") { id }: AccountInput,
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<Account> {
+    const account = await Account.findOne({
+      where: { id },
+      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+    });
+    if (!account) {
+      throw new ApolloError("No account found");
+    }
+    if (account.owner.id !== user.id) {
+      throw new ApolloError("You don't have access to this account");
+    }
+    return account;
+  }
+
   @Mutation(() => Account)
   async createAccount(
     @Arg("options") options: NewAccountInput,
