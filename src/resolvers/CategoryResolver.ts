@@ -120,7 +120,6 @@ export class CategoryResolver {
     if (category.ownerUser.id !== user.id && !budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
-    await Category.delete({ id });
-    return category;
+    return category.remove();
   }
 }

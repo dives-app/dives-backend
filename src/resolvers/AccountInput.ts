@@ -42,7 +42,7 @@ export class UpdateAccountInput {
   @Field({ nullable: true })
   color?: string;
   @Field({ nullable: true })
-  type?: string;
+  type?: AccountType;
   @Field({ nullable: true })
   interestRate?: number;
   @Field({ nullable: true })

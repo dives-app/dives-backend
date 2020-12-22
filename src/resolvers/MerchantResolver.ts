@@ -98,6 +98,6 @@ export class MerchantResolver {
     if (merchant.ownerUser.id !== user.id && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
-    return Merchant.delete({ id });
+    return merchant.remove();
   }
 }

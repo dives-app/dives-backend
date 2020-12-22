@@ -110,7 +110,6 @@ export class BudgetResolver {
       );
     }
     const budget = await Budget.findOne({ where: { id } });
-    await Budget.delete({ id });
-    return budget;
+    return budget.remove();
   }
 }

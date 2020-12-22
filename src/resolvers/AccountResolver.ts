@@ -1,5 +1,5 @@
 import { Arg, Ctx, Info, Mutation, Resolver } from "type-graphql";
-import { Account, AccountType } from "../entities/Account";
+import { Account } from "../entities/Account";
 import { Context } from "../../types";
 import { ApolloError } from "apollo-server-errors";
 import {
@@ -78,7 +78,7 @@ export class AccountResolver {
         description,
         balance,
         iconUrl: icon,
-        type: AccountType[type as keyof typeof AccountType],
+        type,
         color,
         interestRate,
         billingDate,
@@ -108,9 +108,6 @@ export class AccountResolver {
     if (account.owner.id !== user.id) {
       throw new ApolloError("You are not the owner of this account");
     }
-    await Account.delete({
-      id,
-    });
-    return account;
+    return account.remove();
   }
 }

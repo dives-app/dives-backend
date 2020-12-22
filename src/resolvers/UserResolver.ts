@@ -125,7 +125,6 @@ export class UserResolver {
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     // TODO: Add email confirmation
-    await User.delete({ id: user.id });
-    return userToDelete;
+    return userToDelete.remove();
   }
 }

@@ -103,9 +103,6 @@ export class DebtResolver {
     if (debt.owner.id !== user.id) {
       throw new ApolloError("You are not the owner of this debt");
     }
-    await Debt.delete({
-      id,
-    });
-    return debt;
+    return debt.remove();
   }
 }
