@@ -22,7 +22,7 @@ docker-compose up --build
 
 ## Endpoints
 
-GraphQL API runs on `http://localhost:3000/dev/graphql`
+GraphQL API runs on `http://localhost:3000/local/graphql`
 
 `Adminer` - a tool to explore the database runs on `http://localhost:8080`
 
@@ -31,6 +31,6 @@ GraphQL API runs on `http://localhost:3000/dev/graphql`
 * Install dependencies `npm install`
 * Edit sample config files
     * `serverless-sample.yml` -> `serverless.yml`
-    * `.env-sample` -> `.env`
+    * `env-sample.yml` -> `env.yml`
     * `ormconfig.sample.js` -> `ormconfig.js`
 * Run `npm run dev`. It starts the database and `Adminer` using docker-compose and starts `serverless offline` with `nodemon` for reliading

@@ -8,7 +8,6 @@ import { ApolloContext, Context as MyApolloContext, TokenData } from "./types";
 import { buildSchemaSync } from "type-graphql";
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { UserResolver } from "./src/resolvers/UserResolver";
-import { config as getEnv } from "dotenv";
 import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 import { TransactionResolver } from "./src/resolvers/TransactionResolver";
 import { CategoryResolver } from "./src/resolvers/CategoryResolver";
@@ -31,8 +30,7 @@ import { MerchantResolver } from "./src/resolvers/MerchantResolver";
 import { NotificationResolver } from "./src/resolvers/NotificationResolver";
 import { PurchaseResolver } from "./src/resolvers/PurchaseResolver";
 
-getEnv();
-const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
+const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
 
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
@@ -69,7 +67,7 @@ const getConnection = async () => {
       type: "postgres",
       host: DB_HOST,
       port: parseInt(DB_PORT),
-      username: DB_USER,
+      username: DB_USERNAME,
       password: DB_PASSWORD,
       database: DB_NAME,
       entities: [
@@ -99,9 +97,6 @@ const getConnection = async () => {
 const server = new ApolloServer({
   schema,
   plugins: [httpHeadersPlugin],
-  playground: {
-    endpoint: "/dev/graphql",
-  },
   context: async ({
     event,
     context,

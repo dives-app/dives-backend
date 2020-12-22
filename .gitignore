@@ -7,7 +7,7 @@ node_modules
 # Configuration files
 .vscode
 serverless.yml
-.env
+env.yml
 ormconfig.js
 
 # TypeScript output

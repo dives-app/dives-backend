@@ -12,7 +12,7 @@ import { Account } from "../entities/Account";
 import { Budget } from "../entities/Budget";
 import { updateObject } from "../utils/updateObject";
 import { Merchant } from "../entities/Merchant";
-import { AccessLevel } from "../entities/BudgetMembership";
+import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 import { GraphQLResolveInfo } from "graphql";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 
@@ -31,9 +31,9 @@ export class TransactionResolver {
     if (!transaction) {
       throw new ApolloError("No transaction found");
     }
-    const membership = transaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: transaction.budget, user: user },
+    });
     if (
       transaction.creator.id !== user.id &&
       membership &&
@@ -68,7 +68,8 @@ export class TransactionResolver {
   @Mutation(() => Transaction)
   async updateTransaction(
     @Arg("options") options: UpdateTransactionInput,
-    @Ctx() { user }: Context
+    @Ctx() { user }: Context,
+    @Info() info: GraphQLResolveInfo
   ): Promise<Transaction> {
     const {
       amount,
@@ -81,13 +82,21 @@ export class TransactionResolver {
       id,
       merchantId,
     } = options;
-    const transaction = await Transaction.findOne({ where: { id } });
+    const transaction = await Transaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([
+          ...getRelationSubfields(info.fieldNodes[0].selectionSet),
+          "creator",
+        ]),
+      ],
+    });
     if (!transaction) {
       throw new ApolloError("No transaction found");
     }
-    const membership = transaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: transaction.budget, user: user },
+    });
     if (
       transaction.creator.id !== user.id &&
       membership &&
@@ -121,9 +130,9 @@ export class TransactionResolver {
     if (!transaction) {
       throw new ApolloError("No transaction found");
     }
-    const membership = transaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: transaction.budget, user: user },
+    });
     if (
       transaction.creator.id !== user.id &&
       membership &&

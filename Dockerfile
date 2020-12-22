@@ -11,7 +11,7 @@ ADD package.json ./package.json
 ADD yarn.lock ./yarn.lock
 ADD tsconfig.json ./tsconfig.json
 ADD serverless-sample.yml ./serverless.yml
-ADD .env-sample ./.env
+ADD env-sample.yml ./env.yml
 ADD ormconfig-sample.js ./ormconfig.js
 
 RUN yarn

@@ -9,7 +9,7 @@ import {
 } from "./CycleTransactionInput";
 import { Category } from "../entities/Category";
 import { Account } from "../entities/Account";
-import { AccessLevel } from "../entities/BudgetMembership";
+import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 import { updateObject } from "../utils/updateObject";
 import { Budget } from "../entities/Budget";
 import { Merchant } from "../entities/Merchant";
@@ -31,9 +31,9 @@ export class CycleTransactionResolver {
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
     }
-    const membership = cycleTransaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: cycleTransaction.budget, user: user },
+    });
     if (
       cycleTransaction.creator.id !== user.id &&
       membership &&
@@ -95,9 +95,9 @@ export class CycleTransactionResolver {
     if (!cycleTransaction) {
       throw new ApolloError("No cycleTransaction found");
     }
-    const membership = cycleTransaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: cycleTransaction.budget, user: user },
+    });
     if (
       cycleTransaction.creator.id !== user.id &&
       membership &&
@@ -132,9 +132,9 @@ export class CycleTransactionResolver {
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
     }
-    const membership = cycleTransaction.budget.membership.find(
-      (membership) => membership.user.id === user.id
-    );
+    const membership = await BudgetMembership.findOne({
+      where: { budget: cycleTransaction.budget, user: user },
+    });
     if (
       cycleTransaction.creator.id !== user.id &&
       membership &&
