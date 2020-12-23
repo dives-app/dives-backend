@@ -1,5 +1,6 @@
 # package directories
 node_modules
+build_output
 
 # Serverless directories
 .serverless
@@ -8,7 +9,6 @@ node_modules
 .vscode
 serverless.yml
 env.yml
-ormconfig.js
 
 # TypeScript output
 build

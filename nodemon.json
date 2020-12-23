@@ -1,9 +1,11 @@
 {
   "verbose": true,
   "debug": false,
-  "watch": ["src", "index.ts"],
+  "watch": [
+    "src",
+    "index.ts"
+  ],
   "ext": "ts",
-  "ignore": "",
   "exec": "serverless offline --allowCache",
   "inspect": true
 }
