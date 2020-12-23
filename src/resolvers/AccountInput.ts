@@ -32,8 +32,6 @@ export class UpdateAccountInput {
   @Field({ nullable: true })
   name?: string;
   @Field({ nullable: true })
-  limit?: number;
-  @Field({ nullable: true })
   currency?: string;
   @Field({ nullable: true })
   description?: string;
@@ -44,7 +42,7 @@ export class UpdateAccountInput {
   @Field({ nullable: true })
   color?: string;
   @Field({ nullable: true })
-  type?: string;
+  type?: AccountType;
   @Field({ nullable: true })
   interestRate?: number;
   @Field({ nullable: true })

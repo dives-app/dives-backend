@@ -70,7 +70,7 @@ export class BudgetResolver {
     @Arg("options") { id, name, limit }: UpdateBudgetInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Budget> {
     if (!user.id) throw new ApolloError("No user logged in");
     const budgetMembership = await BudgetMembership.findOne({
       where: { budget: id, user: user.id },
@@ -97,7 +97,7 @@ export class BudgetResolver {
     @Arg("options") { id }: BudgetInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Budget> {
     if (!user.id) throw new ApolloError("No user logged in");
 
     const budgetMembership = await BudgetMembership.findOne({
@@ -109,6 +109,7 @@ export class BudgetResolver {
         "You don't have access to delete this budget, only OWNER can delete a budget"
       );
     }
-    return Budget.delete({ id });
+    const budget = await Budget.findOne({ where: { id } });
+    return budget.remove();
   }
 }

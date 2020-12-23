@@ -71,7 +71,7 @@ export class PurchaseResolver {
     }: UpdatePurchaseInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Purchase> {
     if (!user.id) throw new ApolloError("No user logged in");
     const purchase = await Purchase.findOne({
       where: { id },
@@ -95,7 +95,7 @@ export class PurchaseResolver {
     @Arg("options") { id }: PurchaseInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Purchase> {
     if (!user.id) throw new ApolloError("No user logged in");
 
     const purchase = await Purchase.findOne({
@@ -105,6 +105,6 @@ export class PurchaseResolver {
     if (purchase.user.id !== user.id) {
       throw new ApolloError("You don't have access to purchase with that id");
     }
-    return Purchase.delete({ id });
+    return purchase.remove();
   }
 }

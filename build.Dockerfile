@@ -1,17 +1,9 @@
 FROM amazonlinux:latest
 
-WORKDIR /backend
+WORKDIR /build_output
 
-COPY src ./src
-COPY types ./types
-COPY utils ./utils
-COPY index.ts ./index.ts
 COPY package.json ./package.json
 COPY yarn.lock ./yarn.lock
-COPY tsconfig.json ./tsconfig.json
-COPY serverless-sample.yml ./serverless.yml
-COPY env-sample.yml ./env.yml
-COPY ormconfig.js ./ormconfig.js
 
 RUN touch ~/.bashrc
 RUN yum install -y gcc-c++ make cairo-devel libjpeg-turbo-devel pango-devel giflib-devel
@@ -21,8 +13,5 @@ RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
 RUN yum install -y yarn
 ENV npm_config_build_from_source=true
 
-RUN yarn
-RUN npx tsc
-
-EXPOSE 3000
-CMD npx typeorm migration:run && npm run serve -- -o 0.0.0.0
+CMD rm -Rf node_modules
+CMD yarn install

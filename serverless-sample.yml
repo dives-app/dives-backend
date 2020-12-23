@@ -2,16 +2,202 @@ service:
   name: dives-backend
 # app and org for use with dashboard.serverless.com
 app: dives-backend-app
-org: org-name
+org: filipw01
 
 plugins:
   - serverless-offline
 
 provider:
   name: aws
+  region: eu-central-1
+  stage: ${opt:stage, 'local'}
+  memorySize: 512
   runtime: nodejs12.x
-  apiGateway:
-    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  role: LambdaRole
+  environment:
+    SERVER_HOST: ${self:custom.${self:provider.stage}.SERVER_HOST}
+    DB_HOST: ${self:custom.${self:provider.stage}.DB_HOST}
+    DB_PORT: ${self:custom.${self:provider.stage}.DB_PORT}
+    DB_NAME: ${self:custom.${self:provider.stage}.DB_NAME}
+    DB_USERNAME: ${self:custom.${self:provider.stage}.DB_USERNAME}
+    DB_PASSWORD: ${self:custom.${self:provider.stage}.DB_PASSWORD}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    JWT_SECRET: secret
+
+custom:
+  local: ${file(env.yml)}
+  dev:
+    SERVER_HOST:
+      # TODO: Fix SERVER_HOST variable
+      Fn::Join:
+        - ""
+        - - "https://"
+          - Ref: "ServerlessInternetGateway"
+          - ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
+    DB_HOST:
+      Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Address ]
+    DB_PORT:
+      Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Port ]
+    DB_NAME: db
+    DB_USERNAME: user
+    DB_PASSWORD: password
+
+resources:
+  Resources:
+    LambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            - Effect: Allow
+              Action: sts:AssumeRole
+              Principal:
+                Service: lambda.amazonaws.com
+          Version: '2012-10-17'
+        Policies:
+          - PolicyName: CanLog
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogStream
+                    - logs:CreateLogGroup
+                    - logs:PutLogEvents
+                  Resource: arn:aws:logs:*:*:*
+
+    ServerlessInternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessInternetGateway"
+
+    ServerlessVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        InstanceTenancy: default
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessVPC"
+
+    ServerlessVPCGA:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        InternetGatewayId:
+          Ref: ServerlessInternetGateway
+
+    ServerlessSubnetA:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        AvailabilityZone: ${self:provider.region}a
+        CidrBlock: 10.0.0.0/24
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessSubnetA"
+
+    ServerlessSubnetB:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        AvailabilityZone: ${self:provider.region}b
+        CidrBlock: 10.0.1.0/24
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessSubnetB"
+
+    ServerlessSubnetGroup:
+      Type: AWS::RDS::DBSubnetGroup
+      Properties:
+        DBSubnetGroupDescription: "RDS Subnet Group"
+        SubnetIds:
+          - Ref: ServerlessSubnetA
+          - Ref: ServerlessSubnetB
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessSubnetGroup"
+
+    ServerlessSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: SecurityGroup for Serverless Functions
+        VpcId:
+          Ref: ServerlessVPC
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessSecurityGroup"
+
+    ServerlessSecurityGroupIngress:
+      DependsOn: [ ServerlessSecurityGroup ]
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !GetAtt ServerlessSecurityGroup.GroupId
+        IpProtocol: tcp
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessSecurityGroupIngress"
+
+    RouteTablePublic:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        Tags:
+          - Key: Name
+            Value: public-route
+
+    RoutePublic:
+      Type: AWS::EC2::Route
+      Properties:
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId:
+          Ref: ServerlessInternetGateway
+        RouteTableId:
+          Ref: RouteTablePublic
+
+    RouteTableAssociationSubnetA:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        RouteTableId:
+          Ref: RouteTablePublic
+        SubnetId:
+          Ref: ServerlessSubnetA
+
+    RouteTableAssociationSubnetB:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        RouteTableId:
+          Ref: RouteTablePublic
+        SubnetId:
+          Ref: ServerlessSubnetB
+
+    PostgreSqlRDSInstance:
+      DependsOn: [ ServerlessVPCGA ]
+      Type: AWS::RDS::DBInstance
+      Properties:
+        MasterUsername: ${self:custom.${self:provider.stage}.DB_USERNAME}
+        MasterUserPassword: ${self:custom.${self:provider.stage}.DB_PASSWORD}
+        AllocatedStorage: "20"
+        DBName: ${self:custom.${self:provider.stage}.DB_NAME}
+        DBInstanceClass: db.t2.micro
+        VPCSecurityGroups:
+          - !GetAtt ServerlessSecurityGroup.GroupId
+        DBSubnetGroupName:
+          Ref: ServerlessSubnetGroup
+        Engine: postgres
+        PubliclyAccessible: true
+
 
 functions:
   apollo:
@@ -25,5 +211,3 @@ functions:
           path: graphql
           method: get
           cors: true
-    environment:
-      JWT_SECRET: secret

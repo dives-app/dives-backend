@@ -1,0 +1,6 @@
+SERVER_HOST: localhost
+DB_HOST: db
+DB_PORT: 5432
+DB_USERNAME: admin
+DB_PASSWORD: admin
+DB_NAME: db

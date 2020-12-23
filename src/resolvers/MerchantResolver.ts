@@ -56,7 +56,7 @@ export class MerchantResolver {
     { id, name }: UpdateMerchantInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Merchant> {
     if (!user.id) throw new ApolloError("No user logged in");
     const merchant = await Merchant.findOne({
       where: { id },
@@ -74,7 +74,7 @@ export class MerchantResolver {
     @Arg("options") { id }: MerchantInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Merchant> {
     if (!user.id) throw new ApolloError("No user logged in");
 
     const merchant = await Merchant.findOne({
@@ -98,6 +98,6 @@ export class MerchantResolver {
     if (merchant.ownerUser.id !== user.id && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
-    return Merchant.delete({ id });
+    return merchant.remove();
   }
 }

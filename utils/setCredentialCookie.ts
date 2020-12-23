@@ -17,6 +17,7 @@ export function setCredentialCookie(
       maxAge: 3600,
       path: "/",
       sameSite: true,
+      // TODO: Add secure conditionally based on env
       // secure: true,
     },
   });

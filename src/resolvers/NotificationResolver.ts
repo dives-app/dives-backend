@@ -58,7 +58,7 @@ export class NotificationResolver {
     { id, action, read, text, time }: UpdateNotificationInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Notification> {
     if (!user.id) throw new ApolloError("No user logged in");
     const notification = await Notification.findOne({
       where: { id },
@@ -79,7 +79,7 @@ export class NotificationResolver {
     @Arg("options") { id }: NotificationInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Notification> {
     if (!user.id) throw new ApolloError("No user logged in");
 
     const notification = await Notification.findOne({
@@ -92,6 +92,6 @@ export class NotificationResolver {
         "You don't have access to notification with that id"
       );
     }
-    return Notification.delete({ id });
+    return notification.remove();
   }
 }

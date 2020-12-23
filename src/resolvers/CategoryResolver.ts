@@ -74,7 +74,7 @@ export class CategoryResolver {
     { id, name, limit, color, icon, type }: UpdateCategoryInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Category> {
     if (!user.id) throw new ApolloError("No user logged in");
     const category = await Category.findOne({
       where: { id },
@@ -96,7 +96,7 @@ export class CategoryResolver {
     @Arg("options") { id }: CategoryInput,
     @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ) {
+  ): Promise<Category> {
     if (!user.id) throw new ApolloError("No user logged in");
 
     const category = await Category.findOne({
@@ -120,6 +120,6 @@ export class CategoryResolver {
     if (category.ownerUser.id !== user.id && !budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
-    return Category.delete({ id });
+    return category.remove();
   }
 }

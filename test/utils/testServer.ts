@@ -5,7 +5,7 @@ import { UserResolver } from "../../src/resolvers/UserResolver";
 import { Connection, createConnection, getConnectionManager } from "typeorm";
 import { config as getEnv } from "dotenv";
 
-getEnv({ path: ".env-test" });
+getEnv({ path: "env.yml-test" });
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USER } = process.env;
 
 export let loggedUserEmail;

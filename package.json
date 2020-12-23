@@ -1,14 +1,21 @@
 {
   "name": "dives-backend",
-  "version": "1.0.0",
-  "description": "Serverless webpack example using Typescript",
+  "version": "0.1.0",
+  "description": "Serverless Typescript Apollo GraphQL API with PostgreSQL",
   "main": "handler.js",
   "scripts": {
-    "watch": "tsc -w",
-    "build": "tsc",
+    "prebuild:local": "rm -Rf node_modules",
+    "build:local": "npm_config_build_from_source=true yarn",
+    "prebuild:lambda": "rm -Rf build_output && mkdir build_output",
+    "build:lambda": "docker build -t dives_lambda_build -f build.Dockerfile . && docker run -v $(pwd)/build_output:/build_output/node_modules dives_lambda_build",
+    "postbuild:lambda": "rm -Rf node_modules && mv build_output node_modules",
+    "deploy": "npm run build:lambda && serverless deploy --stage dev",
+    "migration:run": "typeorm migration:run",
     "test": "jest",
-    "debug": "SLS_DEBUG=* serverless offline --allowCache",
     "serve": "serverless offline --allowCache",
+    "debug": "SLS_DEBUG=* serverless offline --allowCache",
+    "watch": "tsc -w",
+    "predev": "rm -Rf build",
     "dev": "npm run dev:db && npm run dev:backend & npm run watch",
     "dev:backend": "nodemon",
     "dev:db": "docker-compose -f docker-compose-dev.yml up -d"
@@ -22,7 +29,6 @@
     "bufferutil": "4.0.1",
     "canvas": "2.6.1",
     "class-validator": "^0.12.2",
-    "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
@@ -38,6 +44,7 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.10.0",
     "apollo-server-testing": "^3.0.0-alpha.3",
+    "env-yaml": "^0.1.2",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "prettier": "2.1.1",
@@ -51,6 +58,6 @@
   "resolutions": {
     "graphql": "15.3.0"
   },
-  "author": "The serverless webpack authors (https://github.com/elastic-coders/serverless-webpack)",
+  "author": "Dives (https://github.com/dives-app)",
   "license": "MIT"
 }
