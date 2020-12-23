@@ -32,4 +32,6 @@ GraphQL API runs on `http://localhost:3000/local/graphql`
 2. Edit sample config files
     * `serverless-sample.yml` -> `serverless.yml`
     * `env-sample.yml` -> `env.yml`
-3. Run `npm run dev`. It starts the database and `Adminer` using docker-compose and starts `serverless offline` with `nodemon` for reloading
+3. Change `db` to `localhost` in `env.yml`
+4. Run `npm run dev`. It starts the database and `Adminer` using docker-compose and starts `serverless offline` with `nodemon` for reloading
+5. Run `npm run migration:run` to create empty database tables

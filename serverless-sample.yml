@@ -1,8 +1,8 @@
 service:
   name: dives-backend
 # app and org for use with dashboard.serverless.com
-app: app
-org: org
+app: dives-backend-app
+org: filipw01
 
 plugins:
   - serverless-offline
