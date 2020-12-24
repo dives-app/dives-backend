@@ -1,36 +1,47 @@
 import "source-map-support/register";
 import "reflect-metadata";
-import { Connection, createConnection, getConnectionManager } from "typeorm";
-import { ApolloServer } from "apollo-server-lambda";
+import {Connection, createConnection, getConnectionManager} from "typeorm";
+import {ApolloServer} from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
-import { verify } from "jsonwebtoken";
-import { ApolloContext, Context as MyApolloContext, TokenData } from "./types";
-import { buildSchemaSync } from "type-graphql";
-import { APIGatewayEvent, Context } from "aws-lambda";
-import { UserResolver } from "./src/resolvers/UserResolver";
-import { BudgetResolver } from "./src/resolvers/BudgetResolver";
-import { TransactionResolver } from "./src/resolvers/TransactionResolver";
-import { CategoryResolver } from "./src/resolvers/CategoryResolver";
-import { DebtResolver } from "./src/resolvers/DebtResolver";
-import { Account } from "./src/entities/Account";
-import { Budget } from "./src/entities/Budget";
-import { BudgetMembership } from "./src/entities/BudgetMembership";
-import { Category } from "./src/entities/Category";
-import { CycleTransaction } from "./src/entities/CycleTransaction";
-import { Debt } from "./src/entities/Debt";
-import { Merchant } from "./src/entities/Merchant";
-import { Notification } from "./src/entities/Notification";
-import { Plan } from "./src/entities/Plan";
-import { Purchase } from "./src/entities/Purchase";
-import { Transaction } from "./src/entities/Transaction";
-import { User } from "./src/entities/User";
-import { AccountResolver } from "./src/resolvers/AccountResolver";
-import { CycleTransactionResolver } from "./src/resolvers/CycleTransactionResolver";
-import { MerchantResolver } from "./src/resolvers/MerchantResolver";
-import { NotificationResolver } from "./src/resolvers/NotificationResolver";
-import { PurchaseResolver } from "./src/resolvers/PurchaseResolver";
+import {verify} from "jsonwebtoken";
+import {ApolloContext, Context as MyApolloContext, TokenData} from "./types";
+import {buildSchemaSync} from "type-graphql";
+import {APIGatewayEvent, Context} from "aws-lambda";
+import {UserResolver} from "./src/resolvers/UserResolver";
+import {BudgetResolver} from "./src/resolvers/BudgetResolver";
+import {TransactionResolver} from "./src/resolvers/TransactionResolver";
+import {CategoryResolver} from "./src/resolvers/CategoryResolver";
+import {DebtResolver} from "./src/resolvers/DebtResolver";
+import {Account} from "./src/entities/Account";
+import {Budget} from "./src/entities/Budget";
+import {BudgetMembership} from "./src/entities/BudgetMembership";
+import {Category} from "./src/entities/Category";
+import {CycleTransaction} from "./src/entities/CycleTransaction";
+import {Debt} from "./src/entities/Debt";
+import {Merchant} from "./src/entities/Merchant";
+import {Notification} from "./src/entities/Notification";
+import {Plan} from "./src/entities/Plan";
+import {Purchase} from "./src/entities/Purchase";
+import {Transaction} from "./src/entities/Transaction";
+import {User} from "./src/entities/User";
+import {AccountResolver} from "./src/resolvers/AccountResolver";
+import {CycleTransactionResolver} from "./src/resolvers/CycleTransactionResolver";
+import {MerchantResolver} from "./src/resolvers/MerchantResolver";
+import {NotificationResolver} from "./src/resolvers/NotificationResolver";
+import {PurchaseResolver} from "./src/resolvers/PurchaseResolver";
+import AWS from "aws-sdk";
 
-const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
+const {
+  DB_HOST,
+  DB_NAME,
+  DB_PORT,
+  DB_PASSWORD,
+  DB_USERNAME,
+  S3_HOST,
+  S3_PORT,
+  S3_ACCESS_KEY_ID,
+  S3_SECRET_KEY,
+} = process.env;
 
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
@@ -94,21 +105,26 @@ const getConnection = async () => {
   return connection;
 };
 
+const S3 = new AWS.S3({
+  s3ForcePathStyle: true,
+  accessKeyId: S3_ACCESS_KEY_ID,
+  secretAccessKey: S3_SECRET_KEY,
+  endpoint: `${S3_HOST}:${S3_PORT}`,
+});
+
 const server = new ApolloServer({
   schema,
   plugins: [httpHeadersPlugin],
-  context: async ({
-    event,
-    context,
-  }: ApolloContext): Promise<MyApolloContext> => {
+  context: async ({event, context}: ApolloContext): Promise<MyApolloContext> => {
     const connection = await getConnection();
-    let user: TokenData = { email: null, id: null };
+    let user: TokenData = {email: null, id: null};
     try {
       const jwt = event.headers.Cookie.match(/jwt=.*?(?=;|$)/m)[0].slice(4);
       user = verify(jwt, process.env.JWT_SECRET) as TokenData;
     } catch {}
     return {
       connection,
+      s3: S3,
       event,
       context,
       user,
@@ -128,7 +144,8 @@ const handler = server.createHandler({
 const runHandler = (event, context, handler) =>
   new Promise((resolve, reject) => {
     const callback = (error, body) => (error ? reject(error) : resolve(body));
-
+    event.headers["content-type"] = event.headers["Content-Type"];
+    console.log(event.headers);
     handler(event, context, callback);
   });
 

@@ -6,6 +6,7 @@ org: filipw01
 
 plugins:
   - serverless-offline
+  - serverless-s3-local
 
 provider:
   name: aws

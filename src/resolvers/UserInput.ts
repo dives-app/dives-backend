@@ -1,4 +1,5 @@
-import { InputType, Field } from "type-graphql";
+import {InputType, Field} from "type-graphql";
+import {FileUpload, GraphQLUpload} from "graphql-upload";
 
 @InputType()
 export class UsernamePasswordInput {
@@ -22,16 +23,16 @@ export class UserInput {
 
 @InputType()
 export class UpdateUserInput {
-  @Field({ nullable: true })
+  @Field({nullable: true})
   name: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   email: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   birthDate: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   country: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   password: string;
-  @Field({ nullable: true })
-  photo: string;
+  @Field(() => GraphQLUpload, {nullable: true})
+  photo: FileUpload;
 }

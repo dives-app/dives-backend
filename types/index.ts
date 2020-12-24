@@ -1,5 +1,6 @@
-import { APIGatewayProxyEvent, Context as LambdaContext } from "aws-lambda";
-import { Connection } from "typeorm";
+import {APIGatewayProxyEvent, Context as LambdaContext} from "aws-lambda";
+import {Connection} from "typeorm";
+import {S3} from "aws-sdk";
 
 export interface TokenData {
   id: string;
@@ -26,8 +27,9 @@ export interface Cookie {
 }
 
 export interface Context extends ApolloContext {
-  user: TokenData;
+  connection: Connection;
+  s3: S3;
   setCookies: Array<Cookie>;
   setHeaders: Array<any>;
-  connection: Connection;
+  user: TokenData;
 }
