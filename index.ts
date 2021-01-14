@@ -144,8 +144,6 @@ const handler = server.createHandler({
 const runHandler = (event, context, handler) =>
   new Promise((resolve, reject) => {
     const callback = (error, body) => (error ? reject(error) : resolve(body));
-    event.headers["content-type"] = event.headers["Content-Type"];
-    console.log(event.headers);
     handler(event, context, callback);
   });
 

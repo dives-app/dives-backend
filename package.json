@@ -29,7 +29,6 @@
     "bufferutil": "4.0.1",
     "canvas": "2.6.1",
     "class-validator": "^0.12.2",
-    "graphql-upload": "^11.0.0",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
@@ -41,7 +40,6 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.62",
     "@types/aws-sdk": "^2.7.0",
-    "@types/graphql-upload": "^8.0.4",
     "@types/jest": "^26.0.13",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.10.0",

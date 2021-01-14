@@ -100,17 +100,16 @@ export class UserResolver {
     });
     // TODO: Add password security validation
     let photoUrl;
-    // TODO: Find multipart form workaround
     // TODO: Test if this works
     if (photo !== undefined) {
-      const {filename, createReadStream} = photo;
-      await s3
-        .putObject({
-          Bucket: S3_BUCKET,
-          Key: `${user.id}/${filename}`,
-          Body: createReadStream(),
-        })
-        .promise();
+      // TODO: Add random filename
+      const filename = "somehash";
+      s3.getSignedUrl("putObject", {
+        Bucket: S3_BUCKET,
+        Key: `${user.id}/${filename}`,
+        // TODO: Add ContentType
+        ContentType: "",
+      });
       if (STAGE === "local") {
         photoUrl = `http://localhost:4569/${S3_BUCKET}/${user.id}/${filename}`;
       } else {
