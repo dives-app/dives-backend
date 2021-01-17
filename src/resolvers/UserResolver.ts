@@ -1,5 +1,6 @@
 import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import argon2 from "argon2";
+import {nanoid} from "nanoid";
 import {User} from "../entities/User";
 import {Context} from "../../types";
 import {UpdateUserInput, UserInput, UsernamePasswordInput} from "./UserInput";
@@ -101,25 +102,37 @@ export class UserResolver {
     // TODO: Add password security validation
     let photoUrl;
     // TODO: Test if this works
+    let updatePhotoUrl;
     if (photo !== undefined) {
-      // TODO: Add random filename
-      const filename = "somehash";
-      s3.getSignedUrl("putObject", {
+      let file;
+      if (userToUpdate.photoUrl !== undefined) {
+        const split = userToUpdate.photoUrl.split("/");
+        file = split[split.length - 1];
+      } else {
+        file = nanoid();
+      }
+      updatePhotoUrl = s3.createPresignedPost({
         Bucket: S3_BUCKET,
-        Key: `${user.id}/${filename}`,
-        // TODO: Add ContentType
-        ContentType: "",
+        Fields: {
+          key: `${user.id}/${file}`,
+        },
+        Conditions: [
+          ["content-length-range", 0, 3000000], // Restrict size from 0-3MB
+          ["starts-with", "$Content-Type", "image/"], // Is image
+        ],
+        Expires: 100,
       });
       if (STAGE === "local") {
-        photoUrl = `http://localhost:4569/${S3_BUCKET}/${user.id}/${filename}`;
+        photoUrl = `http://localhost:4569/${S3_BUCKET}/${user.id}/${file}`;
       } else {
-        photoUrl = `http://${S3_BUCKET}.s3-website.${S3_REGION}.amazonaws.com/${user.id}/${filename}`;
+        photoUrl = `http://${S3_BUCKET}.s3-website.${S3_REGION}.amazonaws.com/${user.id}/${file}`;
       }
     }
     updateObject(userToUpdate, {
       name,
       country,
       password: password !== undefined ? await argon2.hash(password) : undefined,
+      updatePhotoUrl: JSON.stringify(updatePhotoUrl),
       photoUrl,
       birthDate,
       email,
