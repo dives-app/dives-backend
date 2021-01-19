@@ -101,31 +101,35 @@ export class UserResolver {
     });
     // TODO: Add password security validation
     let photoUrl;
-    // TODO: Test if this works
     let updatePhotoUrl;
     if (photo !== undefined) {
       let file;
-      if (userToUpdate.photoUrl !== undefined) {
-        const split = userToUpdate.photoUrl.split("/");
-        file = split[split.length - 1];
+      const photoSplit = photo.split(".");
+      const extension = photoSplit[photoSplit.length - 1];
+      if (userToUpdate.photoUrl !== null) {
+        let split = userToUpdate.photoUrl.split("/");
+        split = split[split.length - 1].split(".");
+        split[split.length - 1] = extension;
+        file = split.join(".");
       } else {
-        file = nanoid();
+        file = `${nanoid()}.${extension}`;
       }
       updatePhotoUrl = s3.createPresignedPost({
         Bucket: S3_BUCKET,
         Fields: {
           key: `${user.id}/${file}`,
+          acl: "public-read",
         },
         Conditions: [
-          ["content-length-range", 0, 3000000], // Restrict size from 0-3MB
-          ["starts-with", "$Content-Type", "image/"], // Is image
+          ["content-length-range", 0, 3_000_000], // Restrict size from 0-3MB
         ],
         Expires: 100,
       });
       if (STAGE === "local") {
         photoUrl = `http://localhost:4569/${S3_BUCKET}/${user.id}/${file}`;
+        updatePhotoUrl.url = updatePhotoUrl.url.replace("https://", "http://");
       } else {
-        photoUrl = `http://${S3_BUCKET}.s3-website.${S3_REGION}.amazonaws.com/${user.id}/${file}`;
+        photoUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${user.id}/${file}`;
       }
     }
     updateObject(userToUpdate, {

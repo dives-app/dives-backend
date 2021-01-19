@@ -16,12 +16,15 @@ provider:
   runtime: nodejs12.x
   role: LambdaRole
   environment:
+    STAGE: ${self:provider.stage}
     SERVER_HOST: ${self:custom.${self:provider.stage}.SERVER_HOST}
     DB_HOST: ${self:custom.${self:provider.stage}.DB_HOST}
     DB_PORT: ${self:custom.${self:provider.stage}.DB_PORT}
     DB_NAME: ${self:custom.${self:provider.stage}.DB_NAME}
     DB_USERNAME: ${self:custom.${self:provider.stage}.DB_USERNAME}
     DB_PASSWORD: ${self:custom.${self:provider.stage}.DB_PASSWORD}
+    S3_REGION: ${self:provider.region}
+    S3_BUCKET: ${self:custom.${self:provider.stage}.S3_BUCKET}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     JWT_SECRET: secret
 
@@ -29,12 +32,10 @@ custom:
   local: ${file(env.yml)}
   dev:
     SERVER_HOST:
-      # TODO: Fix SERVER_HOST variable
       Fn::Join:
         - ""
-        - - "https://"
-          - Ref: "ServerlessInternetGateway"
-          - ".execute-api.${self:provider.region}.amazonaws.com/${self:provider.stage}"
+        - - Ref: "ApiGatewayRestApi"
+          - ".execute-api.${self:provider.region}.amazonaws.com"
     DB_HOST:
       Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Address ]
     DB_PORT:
@@ -42,6 +43,11 @@ custom:
     DB_NAME: db
     DB_USERNAME: user
     DB_PASSWORD: password
+    S3_BUCKET: dives-backend-data
+
+    s3:
+      host: localhost
+      directory: s3-buckets
 
 resources:
   Resources:
@@ -199,6 +205,25 @@ resources:
         Engine: postgres
         PubliclyAccessible: true
 
+    FilesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.${self:provider.stage}.S3_BUCKET}
+    FilesBucketPermissions:
+      Type: AWS::S3::BucketPolicy
+      DependsOn:
+        - FilesBucket
+      Properties:
+        Bucket: ${self:custom.${self:provider.stage}.S3_BUCKET}
+        PolicyDocument:
+          Statement:
+            - Principal: "*"
+              Action:
+                - s3:PutObject
+                - s3:PutObjectAcl
+              Effect: Allow
+              Sid: "AddPerm"
+              Resource: arn:aws:s3:::${self:custom.${self:provider.stage}.S3_BUCKET}/*
 
 functions:
   apollo:

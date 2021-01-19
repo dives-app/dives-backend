@@ -31,17 +31,7 @@ import {NotificationResolver} from "./src/resolvers/NotificationResolver";
 import {PurchaseResolver} from "./src/resolvers/PurchaseResolver";
 import AWS from "aws-sdk";
 
-const {
-  DB_HOST,
-  DB_NAME,
-  DB_PORT,
-  DB_PASSWORD,
-  DB_USERNAME,
-  S3_HOST,
-  S3_PORT,
-  S3_ACCESS_KEY_ID,
-  S3_SECRET_KEY,
-} = process.env;
+const {STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME} = process.env;
 
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
@@ -104,13 +94,19 @@ const getConnection = async () => {
   }
   return connection;
 };
-
-const S3 = new AWS.S3({
-  s3ForcePathStyle: true,
-  accessKeyId: S3_ACCESS_KEY_ID,
-  secretAccessKey: S3_SECRET_KEY,
-  endpoint: `${S3_HOST}:${S3_PORT}`,
-});
+let S3;
+if (STAGE === "local") {
+  S3 = new AWS.S3({
+    s3ForcePathStyle: true,
+    accessKeyId: "S3RVER",
+    secretAccessKey: "S3RVER",
+    endpoint: "http://localhost:4569",
+  });
+} else {
+  S3 = new AWS.S3({
+    s3ForcePathStyle: true,
+  });
+}
 
 const server = new ApolloServer({
   schema,

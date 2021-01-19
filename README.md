@@ -28,6 +28,10 @@ GraphQL API runs on `http://localhost:3000/local/graphql`
 
 ## Developing backend
 
+### Additional development requirements
+
+* `yarn` - for conflict resolutions
+
 1. Install dependencies `npm run build:local` or `npm_config_build_from_source=true yarn`
 2. Edit sample config files
     * `serverless-sample.yml` -> `serverless.yml`

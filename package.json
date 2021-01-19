@@ -1,8 +1,7 @@
 {
   "name": "dives-backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Serverless Typescript Apollo GraphQL API with PostgreSQL",
-  "main": "handler.js",
   "scripts": {
     "prebuild:local": "rm -Rf node_modules",
     "build:local": "npm_config_build_from_source=true yarn",
