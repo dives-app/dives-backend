@@ -3,8 +3,7 @@ import "reflect-metadata";
 import {Connection, createConnection, getConnectionManager} from "typeorm";
 import {ApolloServer} from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
-import {verify} from "jsonwebtoken";
-import {ApolloContext, Context as MyApolloContext, TokenData} from "./types";
+import {ApolloContext, Context as MyApolloContext} from "./types";
 import {buildSchemaSync} from "type-graphql";
 import {APIGatewayEvent, Context} from "aws-lambda";
 import {UserResolver} from "./src/resolvers/UserResolver";
@@ -30,6 +29,7 @@ import {MerchantResolver} from "./src/resolvers/MerchantResolver";
 import {NotificationResolver} from "./src/resolvers/NotificationResolver";
 import {PurchaseResolver} from "./src/resolvers/PurchaseResolver";
 import AWS from "aws-sdk";
+import {getCookie} from "./utils/getCookie";
 
 const {STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME} = process.env;
 
@@ -113,17 +113,21 @@ const server = new ApolloServer({
   plugins: [httpHeadersPlugin],
   context: async ({event, context}: ApolloContext): Promise<MyApolloContext> => {
     const connection = await getConnection();
-    let user: TokenData = {email: null, id: null};
-    try {
-      const jwt = event.headers.Cookie.match(/jwt=.*?(?=;|$)/m)[0].slice(4);
-      user = verify(jwt, process.env.JWT_SECRET) as TokenData;
-    } catch {}
+    let userId = null;
+    const token = getCookie(event, "token");
+    if (token !== undefined) {
+      try {
+        const user = await User.findOne({where: {token}});
+        userId = user?.id;
+      } catch {}
+    }
+
     return {
       connection,
       s3: S3,
       event,
       context,
-      user,
+      userId,
       setCookies: [],
       setHeaders: [],
     };

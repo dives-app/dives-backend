@@ -1,32 +1,28 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
-import { Category } from "../entities/Category";
-import { Context } from "../../types";
-import { ApolloError } from "apollo-server-errors";
-import {
-  CategoryInput,
-  NewCategoryInput,
-  UpdateCategoryInput,
-} from "./CategoryInput";
-import { getRelationSubfields } from "../utils/getRelationSubfields";
-import { GraphQLResolveInfo } from "graphql";
-import { updateObject } from "../utils/updateObject";
-import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
-import { Budget } from "../entities/Budget";
-import { User } from "../entities/User";
+import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Category} from "../entities/Category";
+import {Context} from "../../types";
+import {ApolloError} from "apollo-server-errors";
+import {CategoryInput, NewCategoryInput, UpdateCategoryInput} from "./CategoryInput";
+import {getRelationSubfields} from "../utils/getRelationSubfields";
+import {GraphQLResolveInfo} from "graphql";
+import {updateObject} from "../utils/updateObject";
+import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
+import {Budget} from "../entities/Budget";
+import {User} from "../entities/User";
 
 @Resolver(() => Category)
 export class CategoryResolver {
   @Query(() => Category)
   async category(
     @Arg("options") options: CategoryInput,
-    @Ctx() { user }: Context,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     // TODO: Check if user has permissions to category
     try {
       return await Category.findOne({
-        where: { id: options.id },
+        where: {id: options.id},
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -37,18 +33,10 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async createCategory(
     @Arg("options")
-    {
-      name,
-      limit,
-      color,
-      icon,
-      ownerBudget,
-      ownerUser,
-      type,
-    }: NewCategoryInput,
-    @Ctx() { user }: Context
+    {name, limit, color, icon, ownerBudget, ownerUser, type}: NewCategoryInput,
+    @Ctx() {userId}: Context
   ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     let category;
     try {
       category = await Category.create({
@@ -56,10 +44,8 @@ export class CategoryResolver {
         limit,
         color,
         iconUrl: icon,
-        ownerBudget:
-          ownerBudget && (await Budget.findOne({ where: { id: ownerBudget } })),
-        ownerUser:
-          ownerUser && (await User.findOne({ where: { id: ownerUser } })),
+        ownerBudget: ownerBudget && (await Budget.findOne({where: {id: ownerBudget}})),
+        ownerUser: ownerUser && (await User.findOne({where: {id: ownerUser}})),
         type,
       }).save();
     } catch (err) {
@@ -71,13 +57,13 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async updateCategory(
     @Arg("options")
-    { id, name, limit, color, icon, type }: UpdateCategoryInput,
-    @Ctx() { user }: Context,
+    {id, name, limit, color, icon, type}: UpdateCategoryInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     const category = await Category.findOne({
-      where: { id },
+      where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(category, {
@@ -93,31 +79,31 @@ export class CategoryResolver {
 
   @Mutation(() => Category)
   async deleteCategory(
-    @Arg("options") { id }: CategoryInput,
-    @Ctx() { user }: Context,
+    @Arg("options") {id}: CategoryInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
 
     const category = await Category.findOne({
-      where: { category: id },
+      where: {category: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     const budgetMemberships = await BudgetMembership.find({
       where: {
-        user: user.id,
+        user: userId,
       },
     });
     const budgetCategory = budgetMemberships
       .filter(
-        (membership) =>
+        membership =>
           membership.accessLevel === AccessLevel.EDITOR ||
           membership.accessLevel === AccessLevel.OWNER
       )
-      .find((membership) => {
+      .find(membership => {
         return category.ownerBudget.id === membership.budget.id;
       });
-    if (category.ownerUser.id !== user.id && !budgetCategory) {
+    if (category.ownerUser.id !== userId && !budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
     return category.remove();

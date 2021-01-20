@@ -1,30 +1,26 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
-import { Merchant } from "../entities/Merchant";
-import { Context } from "../../types";
-import { ApolloError } from "apollo-server-errors";
-import {
-  MerchantInput,
-  NewMerchantInput,
-  UpdateMerchantInput,
-} from "./MerchantInput";
-import { getRelationSubfields } from "../utils/getRelationSubfields";
-import { GraphQLResolveInfo } from "graphql";
-import { updateObject } from "../utils/updateObject";
-import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
+import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Merchant} from "../entities/Merchant";
+import {Context} from "../../types";
+import {ApolloError} from "apollo-server-errors";
+import {MerchantInput, NewMerchantInput, UpdateMerchantInput} from "./MerchantInput";
+import {getRelationSubfields} from "../utils/getRelationSubfields";
+import {GraphQLResolveInfo} from "graphql";
+import {updateObject} from "../utils/updateObject";
+import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
 
 @Resolver(() => Merchant)
 export class MerchantResolver {
   @Query(() => Merchant)
   async merchant(
     @Arg("options") options: MerchantInput,
-    @Ctx() { user }: Context,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     // TODO: Check if user has permissions to merchant
     try {
       return await Merchant.findOne({
-        where: { id: options.id },
+        where: {id: options.id},
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -35,10 +31,10 @@ export class MerchantResolver {
   @Mutation(() => Merchant)
   async createMerchant(
     @Arg("options")
-    { name }: NewMerchantInput,
-    @Ctx() { user }: Context
+    {name}: NewMerchantInput,
+    @Ctx() {userId}: Context
   ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     let merchant;
     try {
       merchant = await Merchant.create({
@@ -53,13 +49,13 @@ export class MerchantResolver {
   @Mutation(() => Merchant)
   async updateMerchant(
     @Arg("options")
-    { id, name }: UpdateMerchantInput,
-    @Ctx() { user }: Context,
+    {id, name}: UpdateMerchantInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     const merchant = await Merchant.findOne({
-      where: { id },
+      where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(merchant, {
@@ -71,31 +67,31 @@ export class MerchantResolver {
 
   @Mutation(() => Merchant)
   async deleteMerchant(
-    @Arg("options") { id }: MerchantInput,
-    @Ctx() { user }: Context,
+    @Arg("options") {id}: MerchantInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
 
     const merchant = await Merchant.findOne({
-      where: { merchant: id },
+      where: {merchant: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     const budgetMemberships = await BudgetMembership.find({
       where: {
-        user: user.id,
+        user: userId,
       },
     });
     const budgetMerchant = budgetMemberships
       .filter(
-        (membership) =>
+        membership =>
           membership.accessLevel === AccessLevel.EDITOR ||
           membership.accessLevel === AccessLevel.OWNER
       )
-      .find((membership) => {
+      .find(membership => {
         return merchant.ownerBudget.id === membership.budget.id;
       });
-    if (merchant.ownerUser.id !== user.id && !budgetMerchant) {
+    if (merchant.ownerUser.id !== userId && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
     return merchant.remove();

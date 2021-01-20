@@ -1,4 +1,4 @@
-import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Field, ObjectType} from "type-graphql";
 import {Category} from "./Category";
 import {Transaction} from "./Transaction";
@@ -35,6 +35,10 @@ export class User extends BaseEntity {
 
   @Column("varchar")
   password: string;
+
+  @Column({unique: true})
+  @Generated("uuid")
+  token: string;
 
   @Field({nullable: true})
   @Column("varchar", {nullable: true})

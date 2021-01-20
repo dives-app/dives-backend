@@ -1,28 +1,28 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
-import { Notification } from "../entities/Notification";
-import { Context } from "../../types";
-import { ApolloError } from "apollo-server-errors";
+import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Notification} from "../entities/Notification";
+import {Context} from "../../types";
+import {ApolloError} from "apollo-server-errors";
 import {
   NotificationInput,
   NewNotificationInput,
   UpdateNotificationInput,
 } from "./NotificationInput";
-import { getRelationSubfields } from "../utils/getRelationSubfields";
-import { GraphQLResolveInfo } from "graphql";
-import { updateObject } from "../utils/updateObject";
+import {getRelationSubfields} from "../utils/getRelationSubfields";
+import {GraphQLResolveInfo} from "graphql";
+import {updateObject} from "../utils/updateObject";
 
 @Resolver(() => Notification)
 export class NotificationResolver {
   @Query(() => Notification)
   async notification(
     @Arg("options") options: NotificationInput,
-    @Ctx() { user }: Context,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Notification> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     try {
       return await Notification.findOne({
-        where: { id: options.id },
+        where: {id: options.id},
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -33,10 +33,10 @@ export class NotificationResolver {
   @Mutation(() => Notification)
   async createNotification(
     @Arg("options")
-    { action, read, text, time }: NewNotificationInput,
-    @Ctx() { user }: Context
+    {action, read, text, time}: NewNotificationInput,
+    @Ctx() {userId}: Context
   ): Promise<Notification> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     let notification;
     try {
       notification = await Notification.create({
@@ -44,7 +44,7 @@ export class NotificationResolver {
         read,
         text,
         time,
-        user,
+        user: {id: userId},
       }).save();
     } catch (err) {
       throw new ApolloError(err);
@@ -55,13 +55,13 @@ export class NotificationResolver {
   @Mutation(() => Notification)
   async updateNotification(
     @Arg("options")
-    { id, action, read, text, time }: UpdateNotificationInput,
-    @Ctx() { user }: Context,
+    {id, action, read, text, time}: UpdateNotificationInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Notification> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     const notification = await Notification.findOne({
-      where: { id },
+      where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(notification, {
@@ -76,21 +76,19 @@ export class NotificationResolver {
 
   @Mutation(() => Notification)
   async deleteNotification(
-    @Arg("options") { id }: NotificationInput,
-    @Ctx() { user }: Context,
+    @Arg("options") {id}: NotificationInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Notification> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
 
     const notification = await Notification.findOne({
-      where: { notification: id },
+      where: {notification: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
 
-    if (notification.user.id !== user.id) {
-      throw new ApolloError(
-        "You don't have access to notification with that id"
-      );
+    if (notification.user.id !== userId) {
+      throw new ApolloError("You don't have access to notification with that id");
     }
     return notification.remove();
   }

@@ -1,5 +1,5 @@
 // import { ApolloServer } from "apollo-server-lambda";
-// import { ApolloContext, TokenData, Context } from "../../types";
+// import { ApolloContext, AccessTokenData, Context } from "../../types";
 // import { buildSchemaSync } from "type-graphql";
 // import { UserResolver } from "../../src/resolvers/UserResolver";
 // import { Connection, createConnection, getConnectionManager } from "typeorm";
@@ -51,7 +51,7 @@
 //   schema,
 //   context: async ({ event, context }: ApolloContext): Promise<Context> => {
 //     const connection = await getConnection();
-//     let user: TokenData = { email: loggedUserEmail, id: loggedUserId };
+//     let user: AccessTokenData = { email: loggedUserEmail, id: loggedUserId };
 //     return {
 //       event,
 //       context,

@@ -4,7 +4,7 @@ import {S3} from "aws-sdk";
 
 export interface TokenData {
   id: string;
-  email: string;
+  iat: number;
 }
 
 export interface ApolloContext {
@@ -31,5 +31,5 @@ export interface Context extends ApolloContext {
   s3: S3;
   setCookies: Array<Cookie>;
   setHeaders: Array<any>;
-  user: TokenData;
+  userId?: string;
 }

@@ -1,31 +1,27 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
-import { Purchase } from "../entities/Purchase";
-import { Context } from "../../types";
-import { ApolloError } from "apollo-server-errors";
-import {
-  PurchaseInput,
-  NewPurchaseInput,
-  UpdatePurchaseInput,
-} from "./PurchaseInput";
-import { getRelationSubfields } from "../utils/getRelationSubfields";
-import { GraphQLResolveInfo } from "graphql";
-import { updateObject } from "../utils/updateObject";
-import { User } from "../entities/User";
-import { Plan } from "../entities/Plan";
+import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Purchase} from "../entities/Purchase";
+import {Context} from "../../types";
+import {ApolloError} from "apollo-server-errors";
+import {PurchaseInput, NewPurchaseInput, UpdatePurchaseInput} from "./PurchaseInput";
+import {getRelationSubfields} from "../utils/getRelationSubfields";
+import {GraphQLResolveInfo} from "graphql";
+import {updateObject} from "../utils/updateObject";
+import {User} from "../entities/User";
+import {Plan} from "../entities/Plan";
 
 @Resolver(() => Purchase)
 export class PurchaseResolver {
   @Query(() => Purchase)
   async purchase(
     @Arg("options") options: PurchaseInput,
-    @Ctx() { user }: Context,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Purchase> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     // TODO: Check if user has permissions to purchase
     try {
       return await Purchase.findOne({
-        where: { id: options.id },
+        where: {id: options.id},
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -36,10 +32,10 @@ export class PurchaseResolver {
   @Mutation(() => Purchase)
   async createPurchase(
     @Arg("options")
-    { name, currency, endDate, planId, price, startDate }: NewPurchaseInput,
-    @Ctx() { user }: Context
+    {name, currency, endDate, planId, price, startDate}: NewPurchaseInput,
+    @Ctx() {userId}: Context
   ): Promise<Purchase> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     let purchase;
     try {
       purchase = await Purchase.create({
@@ -48,8 +44,8 @@ export class PurchaseResolver {
         price,
         endDate,
         currency,
-        user: await User.findOne({ where: { id: user.id } }),
-        plan: planId && (await Plan.findOne({ where: { id: planId } })),
+        user: await User.findOne({where: {id: userId}}),
+        plan: planId && (await Plan.findOne({where: {id: planId}})),
       }).save();
     } catch (err) {
       throw new ApolloError(err);
@@ -60,21 +56,13 @@ export class PurchaseResolver {
   @Mutation(() => Purchase)
   async updatePurchase(
     @Arg("options")
-    {
-      id,
-      name,
-      currency,
-      endDate,
-      price,
-      startDate,
-      planId,
-    }: UpdatePurchaseInput,
-    @Ctx() { user }: Context,
+    {id, name, currency, endDate, price, startDate, planId}: UpdatePurchaseInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Purchase> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     const purchase = await Purchase.findOne({
-      where: { id },
+      where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(purchase, {
@@ -82,7 +70,7 @@ export class PurchaseResolver {
       currency,
       endDate,
       id,
-      plan: planId && (await Plan.findOne({ where: { id: planId } })),
+      plan: planId && (await Plan.findOne({where: {id: planId}})),
       price,
       startDate,
     });
@@ -92,17 +80,17 @@ export class PurchaseResolver {
 
   @Mutation(() => Purchase)
   async deletePurchase(
-    @Arg("options") { id }: PurchaseInput,
-    @Ctx() { user }: Context,
+    @Arg("options") {id}: PurchaseInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Purchase> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
 
     const purchase = await Purchase.findOne({
-      where: { purchase: id },
+      where: {purchase: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    if (purchase.user.id !== user.id) {
+    if (purchase.user.id !== userId) {
       throw new ApolloError("You don't have access to purchase with that id");
     }
     return purchase.remove();

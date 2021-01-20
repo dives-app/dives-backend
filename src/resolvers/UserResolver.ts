@@ -5,19 +5,20 @@ import {User} from "../entities/User";
 import {Context} from "../../types";
 import {UpdateUserInput, UserInput, UsernamePasswordInput} from "./UserInput";
 import {ApolloError} from "apollo-server-errors";
-import {setCredentialCookie} from "../../utils/setCredentialCookie";
+import {setToken} from "../../utils/setToken";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
 import {GraphQLResolveInfo} from "graphql";
 import {updateObject} from "../utils/updateObject";
+import {revokeToken} from "../../utils/revokeToken";
 
 const {S3_BUCKET, S3_REGION, STAGE} = process.env;
 
 @Resolver(() => User)
 export class UserResolver {
   @Query(() => User)
-  async user(@Ctx() {user}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
+  async user(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
     const currentUser = await User.findOne({
-      where: {id: user.id},
+      where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     if (!currentUser) throw new ApolloError("No user logged in");
@@ -46,11 +47,7 @@ export class UserResolver {
     if (!validPassword) {
       throw new ApolloError("Invalid credentials");
     }
-    const tokenData = {
-      id: userWithSameEmail.id,
-      email: userWithSameEmail.email,
-    };
-    setCredentialCookie(tokenData, setCookies);
+    await setToken(userWithSameEmail.token, setCookies);
     return userWithSameEmail;
   }
 
@@ -79,24 +76,20 @@ export class UserResolver {
     } catch (err) {
       throw new ApolloError(err);
     }
-    const tokenData = {
-      id: user.id,
-      email: user.email,
-    };
-    setCredentialCookie(tokenData, setCookies);
+    await setToken(user.id, setCookies);
     return user;
   }
 
   @Mutation(() => User)
   async updateUser(
     @Arg("options") options: UpdateUserInput,
-    @Ctx() {user, s3}: Context,
+    @Ctx() {userId, s3, connection}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<User> {
     const {country, password, photo, birthDate, email, name} = options;
-    if (!user.id) throw new ApolloError("No user logged in");
+    if (!userId) throw new ApolloError("No user logged in");
     const userToUpdate = await User.findOne({
-      where: {id: user.id},
+      where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     // TODO: Add password security validation
@@ -117,7 +110,7 @@ export class UserResolver {
       updatePhotoUrl = s3.createPresignedPost({
         Bucket: S3_BUCKET,
         Fields: {
-          key: `${user.id}/${file}`,
+          key: `${userId}/${file}`,
           acl: "public-read",
         },
         Conditions: [
@@ -126,10 +119,10 @@ export class UserResolver {
         Expires: 100,
       });
       if (STAGE === "local") {
-        photoUrl = `http://localhost:4569/${S3_BUCKET}/${user.id}/${file}`;
+        photoUrl = `http://localhost:4569/${S3_BUCKET}/${userId}/${file}`;
         updatePhotoUrl.url = updatePhotoUrl.url.replace("https://", "http://");
       } else {
-        photoUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${user.id}/${file}`;
+        photoUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${userId}/${file}`;
       }
     }
     updateObject(userToUpdate, {
@@ -141,15 +134,19 @@ export class UserResolver {
       birthDate,
       email,
     });
-    return userToUpdate.save();
+    const user = await userToUpdate.save();
+    if (password !== undefined) {
+      await revokeToken(userId, connection);
+    }
+    return user;
   }
 
   @Mutation(() => User)
-  async deleteUser(@Ctx() {user}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  async deleteUser(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
+    if (!userId) throw new ApolloError("No user logged in");
 
     const userToDelete = await User.findOne({
-      where: {id: user.id},
+      where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     // TODO: Add email confirmation
