@@ -152,4 +152,15 @@ export class UserResolver {
     // TODO: Add email confirmation
     return userToDelete.remove();
   }
+
+  @Mutation(() => Boolean)
+  async revokeToken(@Ctx() {userId, connection}: Context): Promise<boolean> {
+    if (!userId) throw new ApolloError("No user logged in");
+    try {
+      await revokeToken(userId, connection);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }

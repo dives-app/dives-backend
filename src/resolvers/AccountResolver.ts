@@ -34,6 +34,7 @@ export class AccountResolver {
     @Arg("options") options: NewAccountInput,
     @Ctx() {userId}: Context
   ): Promise<Account> {
+    if (!userId) throw new ApolloError("No user logged in");
     const {name, balance, color, currency, description, icon, type} = options;
     try {
       return Account.create({
