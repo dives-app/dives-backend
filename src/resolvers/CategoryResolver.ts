@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Category} from "../entities/Category";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {CategoryInput, NewCategoryInput, UpdateCategoryInput} from "./CategoryInput";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
@@ -16,17 +16,29 @@ export class CategoryResolver {
   @Query(() => Category)
   async category(
     @Arg("options") options: CategoryInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
-    // TODO: Check if user has permissions to category
+  ): Promise<NoMethods<Category>> {
+    let category;
     try {
-      return await Category.findOne({
+      category = await Category.findOne({
         where: {id: options.id},
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
       throw new ApolloError(e);
     }
+    if (!category) throw new ApolloError("There is no such category", "NOT_FOUND");
+    if (category.ownerUser.id === userId) {
+      return category;
+    }
+    const budgetMembership = await BudgetMembership.findOne({
+      where: {budget: category.ownerBudget.id, user: userId},
+    });
+    if (budgetMembership) {
+      return category;
+    }
+    throw new ApolloError("You don't have access to this category", "FORBIDDEN");
   }
 
   @Authorized()
@@ -34,7 +46,7 @@ export class CategoryResolver {
   async createCategory(
     @Arg("options")
     {name, limit, color, icon, ownerBudget, ownerUser, type}: NewCategoryInput
-  ): Promise<Category> {
+  ): Promise<NoMethods<Category>> {
     let category;
     try {
       category = await Category.create({
@@ -58,7 +70,7 @@ export class CategoryResolver {
     @Arg("options")
     {id, name, limit, color, icon, type}: UpdateCategoryInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
+  ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -80,7 +92,7 @@ export class CategoryResolver {
     @Arg("options") {id}: CategoryInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
+  ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: {category: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -102,6 +114,6 @@ export class CategoryResolver {
     if (category.ownerUser.id !== userId && !budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
-    return category.remove();
+    return {...(await category.remove()), id};
   }
 }

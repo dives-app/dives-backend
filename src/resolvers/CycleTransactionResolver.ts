@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {CycleTransaction} from "../entities/CycleTransaction";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {
   CycleTransactionInput,
@@ -24,7 +24,7 @@ export class CycleTransactionResolver {
     @Arg("options") {id}: CycleTransactionInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<CycleTransaction> {
+  ): Promise<NoMethods<CycleTransaction>> {
     const cycleTransaction = await CycleTransaction.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -50,7 +50,7 @@ export class CycleTransactionResolver {
   async createCycleTransaction(
     @Arg("options") options: NewCycleTransactionInput,
     @Ctx() {userId}: Context
-  ): Promise<CycleTransaction> {
+  ): Promise<NoMethods<CycleTransaction>> {
     const {accountId, amount, categoryId, date, description, name, period} = options;
     try {
       return CycleTransaction.create({
@@ -73,7 +73,7 @@ export class CycleTransactionResolver {
   async updateCycleTransaction(
     @Arg("options") options: UpdateCycleTransactionInput,
     @Ctx() {userId}: Context
-  ): Promise<CycleTransaction> {
+  ): Promise<NoMethods<CycleTransaction>> {
     const {
       amount,
       description,
@@ -112,7 +112,7 @@ export class CycleTransactionResolver {
         budget: await Budget.findOne({where: {id: budgetId}}),
         merchant: await Merchant.findOne({where: {id: merchantId}}),
       });
-      return cycleTransaction.save();
+      return {...(await cycleTransaction.save()), id};
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -123,7 +123,7 @@ export class CycleTransactionResolver {
   async deleteCycleTransaction(
     @Arg("options") {id}: CycleTransactionInput,
     @Ctx() {userId}: Context
-  ): Promise<CycleTransaction> {
+  ): Promise<NoMethods<CycleTransaction>> {
     const cycleTransaction = await CycleTransaction.findOne({where: {id}});
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
@@ -138,6 +138,6 @@ export class CycleTransactionResolver {
     ) {
       throw new ApolloError("No access to edit transaction");
     }
-    return cycleTransaction.remove();
+    return {...(await cycleTransaction.remove()), id};
   }
 }

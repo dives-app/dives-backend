@@ -1,5 +1,5 @@
-import { InputType, Field } from "type-graphql";
-import { CategoryType } from "../entities/Category";
+import {InputType, Field} from "type-graphql";
+import {CategoryType} from "../entities/Category";
 
 @InputType()
 export class CategoryInput {
@@ -11,17 +11,17 @@ export class CategoryInput {
 export class NewCategoryInput {
   @Field()
   name: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   limit?: number;
   @Field()
   type: CategoryType;
   @Field()
-  icon: string; // TODO: FILE
+  icon: string;
   @Field()
   color: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   ownerUser: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   ownerBudget: string;
 }
 
@@ -29,14 +29,14 @@ export class NewCategoryInput {
 export class UpdateCategoryInput {
   @Field()
   id: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   name?: string;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   limit?: number;
-  @Field({ nullable: true })
+  @Field({nullable: true})
   type?: CategoryType;
-  @Field({ nullable: true })
-  icon?: string; // TODO: FILE
-  @Field({ nullable: true })
+  @Field({nullable: true})
+  icon?: string;
+  @Field({nullable: true})
   color?: string;
 }

@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Transaction} from "../entities/Transaction";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {NewTransactionInput, TransactionInput, UpdateTransactionInput} from "./TransactionInput";
 import {Category} from "../entities/Category";
@@ -20,7 +20,7 @@ export class TransactionResolver {
     @Arg("options") {id}: TransactionInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Transaction> {
+  ): Promise<NoMethods<Transaction>> {
     const transaction = await Transaction.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -46,7 +46,7 @@ export class TransactionResolver {
   async createTransaction(
     @Arg("options") options: NewTransactionInput,
     @Ctx() {userId}: Context
-  ): Promise<Transaction> {
+  ): Promise<NoMethods<Transaction>> {
     const {amount, description, name, time, accountId, categoryId} = options;
     try {
       return Transaction.create({
@@ -69,7 +69,7 @@ export class TransactionResolver {
     @Arg("options") options: UpdateTransactionInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Transaction> {
+  ): Promise<NoMethods<Transaction>> {
     const {
       amount,
       description,
@@ -111,7 +111,7 @@ export class TransactionResolver {
         budget: await Budget.findOne({where: {id: budgetId}}),
         merchant: await Merchant.findOne({where: {id: merchantId}}),
       });
-      return transaction.save();
+      return {...(await transaction.save()), id};
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -122,7 +122,7 @@ export class TransactionResolver {
   async deleteTransaction(
     @Arg("options") {id}: TransactionInput,
     @Ctx() {userId}: Context
-  ): Promise<Transaction> {
+  ): Promise<NoMethods<Transaction>> {
     const transaction = await Transaction.findOne({where: {id}});
     if (!transaction) {
       throw new ApolloError("No transaction found");
@@ -137,6 +137,6 @@ export class TransactionResolver {
     ) {
       throw new ApolloError("No access to edit transaction");
     }
-    return transaction.remove();
+    return {...(await transaction.remove()), id};
   }
 }

@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Notification} from "../entities/Notification";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {
   NotificationInput,
@@ -18,7 +18,7 @@ export class NotificationResolver {
   async notification(
     @Arg("options") options: NotificationInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Notification> {
+  ): Promise<NoMethods<Notification>> {
     try {
       return await Notification.findOne({
         where: {id: options.id},
@@ -34,7 +34,7 @@ export class NotificationResolver {
   async createNotification(
     @Arg("options") {action, read, text, time}: NewNotificationInput,
     @Ctx() {userId}: Context
-  ): Promise<Notification> {
+  ): Promise<NoMethods<Notification>> {
     let notification;
     try {
       notification = await Notification.create({
@@ -56,7 +56,7 @@ export class NotificationResolver {
     @Arg("options")
     {id, action, read, text, time}: UpdateNotificationInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Notification> {
+  ): Promise<NoMethods<Notification>> {
     const notification = await Notification.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -77,7 +77,7 @@ export class NotificationResolver {
     @Arg("options") {id}: NotificationInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Notification> {
+  ): Promise<NoMethods<Notification>> {
     const notification = await Notification.findOne({
       where: {notification: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -86,6 +86,6 @@ export class NotificationResolver {
     if (notification.user.id !== userId) {
       throw new ApolloError("You don't have access to notification with that id");
     }
-    return notification.remove();
+    return {...(await notification.remove()), id};
   }
 }

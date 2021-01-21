@@ -1,5 +1,5 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {NewDebtInput} from "./DebtInput";
 import {User} from "../entities/User";
@@ -17,7 +17,7 @@ export class DebtResolver {
     @Arg("options") {id}: DebtInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
+  ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -33,7 +33,10 @@ export class DebtResolver {
 
   @Authorized()
   @Mutation(() => Debt)
-  async createDebt(@Arg("options") options: NewDebtInput, @Ctx() {userId}: Context): Promise<Debt> {
+  async createDebt(
+    @Arg("options") options: NewDebtInput,
+    @Ctx() {userId}: Context
+  ): Promise<NoMethods<Debt>> {
     const {name, balance, color, currency, description, icon, interestRate, endDate} = options;
     try {
       return Debt.create({
@@ -58,7 +61,7 @@ export class DebtResolver {
     @Arg("options") options: UpdateDebtInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
+  ): Promise<NoMethods<Debt>> {
     const {id, name, currency, description, balance, icon, color, interestRate} = options;
     const debt = await Debt.findOne({
       where: {id},
@@ -80,7 +83,7 @@ export class DebtResolver {
         color,
         interestRate,
       });
-      return debt.save();
+      return {...(await debt.save()), id};
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -92,10 +95,10 @@ export class DebtResolver {
     @Arg("options") {id}: DebtInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
+  ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: {id},
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!debt) {
       throw new ApolloError("There is no debt with that id");
@@ -103,6 +106,6 @@ export class DebtResolver {
     if (debt.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this debt");
     }
-    return debt.remove();
+    return {...(await debt.remove()), id};
   }
 }

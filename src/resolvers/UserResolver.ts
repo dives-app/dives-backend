@@ -4,7 +4,7 @@ import {nanoid} from "nanoid";
 import {ApolloError} from "apollo-server-errors";
 import {GraphQLResolveInfo} from "graphql";
 import {User} from "../entities/User";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {UpdateUserInput, UserInput, UsernamePasswordInput} from "./UserInput";
 import {setToken} from "../utils/setToken";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
@@ -30,7 +30,7 @@ export class UserResolver {
     @Arg("options") options: UserInput,
     @Ctx() {setCookies}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
+  ): Promise<NoMethods<User>> {
     let userWithSameEmail;
     try {
       userWithSameEmail = await User.findOne({
@@ -55,7 +55,7 @@ export class UserResolver {
   async register(
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() {setCookies}: Context
-  ): Promise<User> {
+  ): Promise<NoMethods<User>> {
     const userWithSameEmail = await User.findOne({
       where: {email: options.email},
     });
@@ -91,7 +91,7 @@ export class UserResolver {
     @Arg("options") options: UpdateUserInput,
     @Ctx() {userId, s3, connection}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
+  ): Promise<NoMethods<User>> {
     const {country, password, photo, birthDate, email, name} = options;
     const userToUpdate = await User.findOne({
       where: {id: userId},
@@ -157,13 +157,15 @@ export class UserResolver {
 
   @Authorized()
   @Mutation(() => User)
-  async deleteUser(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
+  async deleteUser(
+    @Ctx() {userId}: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<NoMethods<User>> {
     const userToDelete = await User.findOne({
       where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    // TODO: Add email confirmation
-    return userToDelete.remove();
+    return {...(await userToDelete.remove()), id: userId};
   }
 
   @Authorized()

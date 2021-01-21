@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Purchase} from "../entities/Purchase";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {PurchaseInput, NewPurchaseInput, UpdatePurchaseInput} from "./PurchaseInput";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
@@ -16,7 +16,7 @@ export class PurchaseResolver {
   async purchase(
     @Arg("options") options: PurchaseInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Purchase> {
+  ): Promise<NoMethods<Purchase>> {
     // TODO: Check if user has permissions to purchase
     try {
       return await Purchase.findOne({
@@ -34,7 +34,7 @@ export class PurchaseResolver {
     @Arg("options")
     {name, currency, endDate, planId, price, startDate}: NewPurchaseInput,
     @Ctx() {userId}: Context
-  ): Promise<Purchase> {
+  ): Promise<NoMethods<Purchase>> {
     let purchase;
     try {
       purchase = await Purchase.create({
@@ -57,7 +57,7 @@ export class PurchaseResolver {
   async updatePurchase(
     @Arg("options") {id, name, currency, endDate, price, startDate, planId}: UpdatePurchaseInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Purchase> {
+  ): Promise<NoMethods<Purchase>> {
     const purchase = await Purchase.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -81,7 +81,7 @@ export class PurchaseResolver {
     @Arg("options") {id}: PurchaseInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Purchase> {
+  ): Promise<NoMethods<Purchase>> {
     const purchase = await Purchase.findOne({
       where: {purchase: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -89,6 +89,6 @@ export class PurchaseResolver {
     if (purchase.user.id !== userId) {
       throw new ApolloError("You don't have access to purchase with that id");
     }
-    return purchase.remove();
+    return {...(await purchase.remove()), id};
   }
 }

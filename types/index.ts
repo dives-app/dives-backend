@@ -33,3 +33,8 @@ export interface Context extends ApolloContext {
   setHeaders: Array<any>;
   userId?: string;
 }
+
+type NonFunctionPropertyNames<T> = {
+  [K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];
+export type NoMethods<T> = Pick<T, NonFunctionPropertyNames<T>>;

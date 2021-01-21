@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Merchant} from "../entities/Merchant";
-import {Context} from "../../types";
+import {Context, NoMethods} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {MerchantInput, NewMerchantInput, UpdateMerchantInput} from "./MerchantInput";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
@@ -15,7 +15,7 @@ export class MerchantResolver {
   async merchant(
     @Arg("options") options: MerchantInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
+  ): Promise<NoMethods<Merchant>> {
     // TODO: Check if user has permissions to merchant
     try {
       return await Merchant.findOne({
@@ -29,7 +29,7 @@ export class MerchantResolver {
 
   @Authorized()
   @Mutation(() => Merchant)
-  async createMerchant(@Arg("options") {name}: NewMerchantInput): Promise<Merchant> {
+  async createMerchant(@Arg("options") {name}: NewMerchantInput): Promise<NoMethods<Merchant>> {
     let merchant;
     try {
       merchant = await Merchant.create({
@@ -46,7 +46,7 @@ export class MerchantResolver {
   async updateMerchant(
     @Arg("options") {id, name}: UpdateMerchantInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
+  ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -64,7 +64,7 @@ export class MerchantResolver {
     @Arg("options") {id}: MerchantInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
+  ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
       where: {merchant: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -86,6 +86,6 @@ export class MerchantResolver {
     if (merchant.ownerUser.id !== userId && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
-    return merchant.remove();
+    return {...(await merchant.remove()), id};
   }
 }
