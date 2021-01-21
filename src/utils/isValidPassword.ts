@@ -2,7 +2,7 @@
  * Validates password to contain at least one digit, small letter, capital letter, special character and be at least 8 characters long
  * @param password password to validate
  */
-export const validatePassword = (password: string) => {
+export const isValidPassword = (password: string) => {
   // Contain at least one digit (\d)
   // Contain at least one small letter ([a-z])
   // Contain at least one capital letter ([A-Z])

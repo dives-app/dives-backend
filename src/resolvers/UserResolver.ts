@@ -10,6 +10,7 @@ import {setToken} from "../utils/setToken";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
 import {updateObject} from "../utils/updateObject";
 import {revokeToken} from "../utils/revokeToken";
+import {isValidPassword} from "../utils/isValidPassword";
 
 const {S3_BUCKET, S3_REGION, STAGE} = process.env;
 
@@ -61,8 +62,13 @@ export class UserResolver {
     if (userWithSameEmail) {
       throw new ApolloError("Email already in use");
     }
-    // TODO: Add password security validation
     const {email, password, name, birthDate} = options;
+    if (!isValidPassword(password)) {
+      throw new ApolloError(
+        "Invalid password: a valid password should contain at least one digit, small letter, capital letter, special character and be at least 8 characters long",
+        "INVALID_PASSWORD"
+      );
+    }
     const hashedPassword = await argon2.hash(password);
     let user;
     try {
@@ -91,7 +97,6 @@ export class UserResolver {
       where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    // TODO: Add password security validation
     let photoUrl;
     let updatePhotoUrl;
     if (photo !== undefined) {
@@ -124,10 +129,20 @@ export class UserResolver {
         photoUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${userId}/${file}`;
       }
     }
+    let hashedPassword = undefined;
+    if (password !== undefined) {
+      hashedPassword = await argon2.hash(password);
+      if (!isValidPassword(password)) {
+        throw new ApolloError(
+          "Invalid password: a valid password should contain at least one digit, small letter, capital letter, special character and be at least 8 characters long",
+          "INVALID_PASSWORD"
+        );
+      }
+    }
     updateObject(userToUpdate, {
       name,
       country,
-      password: password !== undefined ? await argon2.hash(password) : undefined,
+      password: hashedPassword,
       updatePhotoUrl: JSON.stringify(updatePhotoUrl),
       photoUrl,
       birthDate,
