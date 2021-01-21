@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
 import {NewDebtInput} from "./DebtInput";
@@ -11,6 +11,7 @@ import {updateObject} from "../utils/updateObject";
 
 @Resolver(() => Debt)
 export class DebtResolver {
+  @Authorized()
   @Query(() => Debt)
   async debt(
     @Arg("options") {id}: DebtInput,
@@ -30,6 +31,7 @@ export class DebtResolver {
     return debt;
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async createDebt(@Arg("options") options: NewDebtInput, @Ctx() {userId}: Context): Promise<Debt> {
     const {name, balance, color, currency, description, icon, interestRate, endDate} = options;
@@ -50,6 +52,7 @@ export class DebtResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async updateDebt(
     @Arg("options") options: UpdateDebtInput,
@@ -57,7 +60,6 @@ export class DebtResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<Debt> {
     const {id, name, currency, description, balance, icon, color, interestRate} = options;
-    if (!userId) throw new ApolloError("No user logged in");
     const debt = await Debt.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -84,13 +86,13 @@ export class DebtResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async deleteDebt(
     @Arg("options") {id}: DebtInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Debt> {
-    if (!userId) throw new ApolloError("No user logged in");
     const debt = await Debt.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),

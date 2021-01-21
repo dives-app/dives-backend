@@ -1,28 +1,27 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import argon2 from "argon2";
 import {nanoid} from "nanoid";
+import {ApolloError} from "apollo-server-errors";
+import {GraphQLResolveInfo} from "graphql";
 import {User} from "../entities/User";
 import {Context} from "../../types";
 import {UpdateUserInput, UserInput, UsernamePasswordInput} from "./UserInput";
-import {ApolloError} from "apollo-server-errors";
-import {setToken} from "../../utils/setToken";
+import {setToken} from "../utils/setToken";
 import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
 import {updateObject} from "../utils/updateObject";
-import {revokeToken} from "../../utils/revokeToken";
+import {revokeToken} from "../utils/revokeToken";
 
 const {S3_BUCKET, S3_REGION, STAGE} = process.env;
 
 @Resolver(() => User)
 export class UserResolver {
+  @Authorized()
   @Query(() => User)
   async user(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
-    const currentUser = await User.findOne({
+    return User.findOne({
       where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    if (!currentUser) throw new ApolloError("No user logged in");
-    return currentUser;
   }
 
   @Query(() => User)
@@ -80,6 +79,7 @@ export class UserResolver {
     return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async updateUser(
     @Arg("options") options: UpdateUserInput,
@@ -87,7 +87,6 @@ export class UserResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<User> {
     const {country, password, photo, birthDate, email, name} = options;
-    if (!userId) throw new ApolloError("No user logged in");
     const userToUpdate = await User.findOne({
       where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -141,10 +140,9 @@ export class UserResolver {
     return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async deleteUser(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
-    if (!userId) throw new ApolloError("No user logged in");
-
     const userToDelete = await User.findOne({
       where: {id: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -153,9 +151,9 @@ export class UserResolver {
     return userToDelete.remove();
   }
 
+  @Authorized()
   @Mutation(() => Boolean)
   async revokeToken(@Ctx() {userId, connection}: Context): Promise<boolean> {
-    if (!userId) throw new ApolloError("No user logged in");
     try {
       await revokeToken(userId, connection);
       return true;

@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Account} from "../entities/Account";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
@@ -29,12 +29,12 @@ export class AccountResolver {
     return account;
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async createAccount(
     @Arg("options") options: NewAccountInput,
     @Ctx() {userId}: Context
   ): Promise<Account> {
-    if (!userId) throw new ApolloError("No user logged in");
     const {name, balance, color, currency, description, icon, type} = options;
     try {
       return Account.create({
@@ -52,6 +52,7 @@ export class AccountResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async updateAccount(
     @Arg("options") options: UpdateAccountInput,
@@ -72,7 +73,6 @@ export class AccountResolver {
       billingPeriod,
       owner,
     } = options;
-    if (!userId) throw new ApolloError("No user logged in");
     const account = await Account.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -107,13 +107,13 @@ export class AccountResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async deleteAccount(
     @Arg("options") {id}: AccountInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Account> {
-    if (!userId) throw new ApolloError("No user logged in");
     const account = await Account.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),

@@ -1,4 +1,4 @@
-import {Cookie} from "../types";
+import {Cookie} from "../../types";
 
 export async function setToken(token: string, setCookies: Array<Cookie>) {
   const {STAGE, SERVER_HOST} = process.env;

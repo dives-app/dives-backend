@@ -6,6 +6,7 @@ import httpHeadersPlugin from "apollo-server-plugin-http-headers";
 import {ApolloContext, Context as MyApolloContext} from "./types";
 import {buildSchemaSync} from "type-graphql";
 import {APIGatewayEvent, Context} from "aws-lambda";
+import AWS from "aws-sdk";
 import {UserResolver} from "./src/resolvers/UserResolver";
 import {BudgetResolver} from "./src/resolvers/BudgetResolver";
 import {TransactionResolver} from "./src/resolvers/TransactionResolver";
@@ -28,8 +29,8 @@ import {CycleTransactionResolver} from "./src/resolvers/CycleTransactionResolver
 import {MerchantResolver} from "./src/resolvers/MerchantResolver";
 import {NotificationResolver} from "./src/resolvers/NotificationResolver";
 import {PurchaseResolver} from "./src/resolvers/PurchaseResolver";
-import AWS from "aws-sdk";
-import {getCookie} from "./utils/getCookie";
+import {getCookie} from "./src/utils/getCookie";
+import {authChecker} from "./src/utils/authChecker";
 
 const {STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME} = process.env;
 
@@ -50,6 +51,7 @@ if (!(global as any).schema) {
       UserResolver,
     ],
     validate: true,
+    authChecker,
   });
 }
 const schema = (global as any).schema;

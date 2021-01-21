@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {CycleTransaction} from "../entities/CycleTransaction";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
@@ -18,6 +18,7 @@ import {getRelationSubfields} from "../utils/getRelationSubfields";
 
 @Resolver(() => CycleTransaction)
 export class CycleTransactionResolver {
+  @Authorized()
   @Query(() => CycleTransaction)
   async cycleTransaction(
     @Arg("options") {id}: CycleTransactionInput,
@@ -44,6 +45,7 @@ export class CycleTransactionResolver {
     return cycleTransaction;
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async createCycleTransaction(
     @Arg("options") options: NewCycleTransactionInput,
@@ -66,6 +68,7 @@ export class CycleTransactionResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async updateCycleTransaction(
     @Arg("options") options: UpdateCycleTransactionInput,
@@ -115,6 +118,7 @@ export class CycleTransactionResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async deleteCycleTransaction(
     @Arg("options") {id}: CycleTransactionInput,

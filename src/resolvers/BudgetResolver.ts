@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Budget} from "../entities/Budget";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
@@ -10,14 +10,13 @@ import {updateObject} from "../utils/updateObject";
 
 @Resolver(() => Budget)
 export class BudgetResolver {
+  @Authorized()
   @Query(() => Budget)
   async budget(
     @Arg("options") options: BudgetInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Budget> {
-    if (!userId) throw new ApolloError("No user logged in");
-
     const budgetMembership = await BudgetMembership.findOne({
       where: {budget: options.id, user: userId},
     });
@@ -42,12 +41,12 @@ export class BudgetResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Budget)
   async createBudget(
     @Arg("options") {name, limit}: NewBudgetInput,
     @Ctx() {userId}: Context
   ): Promise<Budget> {
-    if (!userId) throw new ApolloError("No user logged in");
     let budget;
     try {
       budget = await Budget.create({
@@ -65,13 +64,13 @@ export class BudgetResolver {
     return budget;
   }
 
+  @Authorized()
   @Mutation(() => Budget)
   async updateBudget(
     @Arg("options") {id, name, limit}: UpdateBudgetInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Budget> {
-    if (!userId) throw new ApolloError("No user logged in");
     const budgetMembership = await BudgetMembership.findOne({
       where: {budget: id, user: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -92,14 +91,13 @@ export class BudgetResolver {
     return budget.save();
   }
 
+  @Authorized()
   @Mutation(() => Budget)
   async deleteBudget(
     @Arg("options") {id}: BudgetInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Budget> {
-    if (!userId) throw new ApolloError("No user logged in");
-
     const budgetMembership = await BudgetMembership.findOne({
       where: {budget: id, user: userId},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),

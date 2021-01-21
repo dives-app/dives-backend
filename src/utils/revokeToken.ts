@@ -1,5 +1,5 @@
 import {Connection} from "typeorm";
-import {User} from "../src/entities/User";
+import {User} from "../entities/User";
 
 export async function revokeToken(userId: string, connection: Connection) {
   await connection

@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Transaction} from "../entities/Transaction";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
@@ -14,6 +14,7 @@ import {getRelationSubfields} from "../utils/getRelationSubfields";
 
 @Resolver(() => Transaction)
 export class TransactionResolver {
+  @Authorized()
   @Query(() => Transaction)
   async transaction(
     @Arg("options") {id}: TransactionInput,
@@ -40,6 +41,7 @@ export class TransactionResolver {
     return transaction;
   }
 
+  @Authorized()
   @Mutation(() => Transaction)
   async createTransaction(
     @Arg("options") options: NewTransactionInput,
@@ -61,6 +63,7 @@ export class TransactionResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Transaction)
   async updateTransaction(
     @Arg("options") options: UpdateTransactionInput,
@@ -114,6 +117,7 @@ export class TransactionResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Transaction)
   async deleteTransaction(
     @Arg("options") {id}: TransactionInput,

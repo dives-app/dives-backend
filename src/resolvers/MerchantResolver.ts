@@ -1,4 +1,4 @@
-import {Arg, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
 import {Merchant} from "../entities/Merchant";
 import {Context} from "../../types";
 import {ApolloError} from "apollo-server-errors";
@@ -10,13 +10,12 @@ import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
 
 @Resolver(() => Merchant)
 export class MerchantResolver {
+  @Authorized()
   @Query(() => Merchant)
   async merchant(
     @Arg("options") options: MerchantInput,
-    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!userId) throw new ApolloError("No user logged in");
     // TODO: Check if user has permissions to merchant
     try {
       return await Merchant.findOne({
@@ -28,13 +27,9 @@ export class MerchantResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
-  async createMerchant(
-    @Arg("options")
-    {name}: NewMerchantInput,
-    @Ctx() {userId}: Context
-  ): Promise<Merchant> {
-    if (!userId) throw new ApolloError("No user logged in");
+  async createMerchant(@Arg("options") {name}: NewMerchantInput): Promise<Merchant> {
     let merchant;
     try {
       merchant = await Merchant.create({
@@ -46,14 +41,12 @@ export class MerchantResolver {
     return merchant;
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
   async updateMerchant(
-    @Arg("options")
-    {id, name}: UpdateMerchantInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") {id, name}: UpdateMerchantInput,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!userId) throw new ApolloError("No user logged in");
     const merchant = await Merchant.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -65,14 +58,13 @@ export class MerchantResolver {
     return merchant;
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
   async deleteMerchant(
     @Arg("options") {id}: MerchantInput,
     @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<Merchant> {
-    if (!userId) throw new ApolloError("No user logged in");
-
     const merchant = await Merchant.findOne({
       where: {merchant: id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
