@@ -45,17 +45,35 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async createCategory(
     @Arg("options")
-    {name, limit, color, icon, ownerBudget, ownerUser, type}: NewCategoryInput
+    {name, limit, color, icon, ownerBudget, type}: NewCategoryInput,
+    @Ctx() {userId}: Context
   ): Promise<NoMethods<Category>> {
     let category;
+    let hasBudget = false;
+    if (ownerBudget !== undefined) {
+      const membership = await BudgetMembership.findOne({
+        user: {id: userId},
+        budget: {id: ownerBudget},
+      });
+      if (!membership) throw new ApolloError("No such budget");
+      if (
+        membership.accessLevel === AccessLevel.EDITOR ||
+        membership.accessLevel === AccessLevel.OWNER
+      ) {
+        hasBudget = true;
+      } else {
+        throw new ApolloError("You must be EDITOR or OWNER to add a category", "FORBIDDEN");
+      }
+    }
+
     try {
       category = await Category.create({
         name,
         limit,
         color,
         iconUrl: icon,
-        ownerBudget: ownerBudget && (await Budget.findOne({where: {id: ownerBudget}})),
-        ownerUser: ownerUser && (await User.findOne({where: {id: ownerUser}})),
+        ownerBudget: hasBudget && (await Budget.findOne({where: {id: ownerBudget}})),
+        ownerUser: !hasBudget && (await User.findOne({where: {id: userId}})),
         type,
       }).save();
     } catch (err) {
@@ -69,12 +87,31 @@ export class CategoryResolver {
   async updateCategory(
     @Arg("options")
     {id, name, limit, color, icon, type}: UpdateCategoryInput,
+    @Ctx() {userId}: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: {id},
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
+    // TODO: create abstract logic for that and make it more efficient
+    const budgetMemberships = await BudgetMembership.find({
+      where: {
+        user: userId,
+      },
+    });
+    const budgetCategory = budgetMemberships
+      .filter(
+        membership =>
+          membership.accessLevel === AccessLevel.EDITOR ||
+          membership.accessLevel === AccessLevel.OWNER
+      )
+      .find(membership => {
+        return category.ownerBudget.id === membership.budget.id;
+      });
+    if (category.ownerUser.id !== userId && !budgetCategory) {
+      throw new ApolloError("You don't have access to category with that id");
+    }
     updateObject(category, {
       name,
       limit,

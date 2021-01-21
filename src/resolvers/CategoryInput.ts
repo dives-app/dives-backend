@@ -20,8 +20,6 @@ export class NewCategoryInput {
   @Field()
   color: string;
   @Field({nullable: true})
-  ownerUser: string;
-  @Field({nullable: true})
   ownerBudget: string;
 }
 
