@@ -18,7 +18,7 @@ describe("getCookie", () => {
       },
     };
     const value = getCookie(event as APIGatewayProxyEvent, "cookie");
-    expect(value).toEqual(undefined);
+    expect(value).toBeUndefined();
   });
   test("Should get a cookie value when there are multiple cookies", () => {
     const event: unknown = {
@@ -47,5 +47,12 @@ describe("getCookie", () => {
     };
     const value = getCookie(event as APIGatewayProxyEvent, "123ABCdef!#%&'-_`~");
     expect(value).toEqual("!#%&'-_`~");
+  });
+  test("Should return undefined if no Cookie header present", () => {
+    const event: unknown = {
+      headers: {},
+    };
+    const value = getCookie(event as APIGatewayProxyEvent, "test");
+    expect(value).toBeUndefined();
   });
 });
