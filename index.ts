@@ -114,6 +114,12 @@ if (STAGE === "dev") {
 const server = new ApolloServer({
   schema,
   plugins: [httpHeadersPlugin],
+  playground: {
+    endpoint: `/${STAGE}/graphql`,
+    settings: {
+      "request.credentials": "include",
+    },
+  },
   context: async ({ event, context }: ApolloContext): Promise<MyApolloContext> => {
     const connection = await getConnection();
     let userId = null;
