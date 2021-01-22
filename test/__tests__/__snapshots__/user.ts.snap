@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`User Throws on email collision 1`] = `
+Array [
+  [GraphQLError: Email already in use],
+]
+`;

@@ -2,11 +2,6 @@ import { APIGatewayProxyEvent, Context as LambdaContext } from "aws-lambda";
 import { Connection } from "typeorm";
 import { S3 } from "aws-sdk";
 
-export interface TokenData {
-  id: string;
-  iat: number;
-}
-
 export interface ApolloContext {
   event: APIGatewayProxyEvent;
   context: LambdaContext;

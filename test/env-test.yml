@@ -1,0 +1,7 @@
+SERVER_HOST: localhost
+S3_BUCKET: dives-backend-data-test
+DB_HOST: localhost
+DB_PORT: 5432
+DB_USERNAME: admin
+DB_PASSWORD: admin
+DB_NAME: test

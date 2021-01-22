@@ -122,7 +122,7 @@ export class UserResolver {
         ],
         Expires: 100,
       });
-      if (STAGE === "local") {
+      if (STAGE === "dev") {
         photoUrl = `http://localhost:4569/${S3_BUCKET}/${userId}/${file}`;
         updatePhotoUrl.url = updatePhotoUrl.url.replace("https://", "http://");
       } else {

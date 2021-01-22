@@ -3,10 +3,10 @@ import "reflect-metadata";
 import { Connection, createConnection, getConnectionManager } from "typeorm";
 import { ApolloServer } from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
-import { ApolloContext, Context as MyApolloContext } from "./types";
 import { buildSchemaSync } from "type-graphql";
 import { APIGatewayEvent, Context } from "aws-lambda";
 import AWS from "aws-sdk";
+import { ApolloContext, Context as MyApolloContext } from "./types";
 import { UserResolver } from "./src/resolvers/UserResolver";
 import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 import { TransactionResolver } from "./src/resolvers/TransactionResolver";
@@ -57,7 +57,8 @@ if (!(global as any).schema) {
 const schema = (global as any).schema;
 
 /**
- * Returns either old or new connection to the database
+ * Get database connection
+ * @returns either old or new connection to the database
  */
 const getConnection = async () => {
   const manager = getConnectionManager();
@@ -97,7 +98,7 @@ const getConnection = async () => {
   return connection;
 };
 let S3;
-if (STAGE === "local") {
+if (STAGE === "dev") {
   S3 = new AWS.S3({
     s3ForcePathStyle: true,
     accessKeyId: "S3RVER",
