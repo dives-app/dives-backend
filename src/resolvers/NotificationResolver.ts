@@ -1,15 +1,15 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Notification} from "../entities/Notification";
-import {Context, NoMethods} from "../../types";
-import {ApolloError} from "apollo-server-errors";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Notification } from "../entities/Notification";
+import { Context, NoMethods } from "../../types";
+import { ApolloError } from "apollo-server-errors";
 import {
   NotificationInput,
   NewNotificationInput,
   UpdateNotificationInput,
 } from "./NotificationInput";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
-import {updateObject} from "../utils/updateObject";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
+import { updateObject } from "../utils/updateObject";
 
 @Resolver(() => Notification)
 export class NotificationResolver {
@@ -21,7 +21,7 @@ export class NotificationResolver {
   ): Promise<NoMethods<Notification>> {
     try {
       return await Notification.findOne({
-        where: {id: options.id},
+        where: { id: options.id },
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -32,8 +32,8 @@ export class NotificationResolver {
   @Authorized()
   @Mutation(() => Notification)
   async createNotification(
-    @Arg("options") {action, read, text, time}: NewNotificationInput,
-    @Ctx() {userId}: Context
+    @Arg("options") { action, read, text, time }: NewNotificationInput,
+    @Ctx() { userId }: Context
   ): Promise<NoMethods<Notification>> {
     let notification;
     try {
@@ -42,7 +42,7 @@ export class NotificationResolver {
         read,
         text,
         time,
-        user: {id: userId},
+        user: { id: userId },
       }).save();
     } catch (err) {
       throw new ApolloError(err);
@@ -54,11 +54,11 @@ export class NotificationResolver {
   @Mutation(() => Notification)
   async updateNotification(
     @Arg("options")
-    {id, action, read, text, time}: UpdateNotificationInput,
+    { id, action, read, text, time }: UpdateNotificationInput,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Notification>> {
     const notification = await Notification.findOne({
-      where: {id},
+      where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(notification, {
@@ -74,18 +74,18 @@ export class NotificationResolver {
   @Authorized()
   @Mutation(() => Notification)
   async deleteNotification(
-    @Arg("options") {id}: NotificationInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: NotificationInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Notification>> {
     const notification = await Notification.findOne({
-      where: {notification: id},
+      where: { notification: id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
 
     if (notification.user.id !== userId) {
       throw new ApolloError("You don't have access to notification with that id");
     }
-    return {...(await notification.remove()), id};
+    return { ...(await notification.remove()), id };
   }
 }

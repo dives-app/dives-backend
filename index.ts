@@ -1,38 +1,38 @@
 import "source-map-support/register";
 import "reflect-metadata";
-import {Connection, createConnection, getConnectionManager} from "typeorm";
-import {ApolloServer} from "apollo-server-lambda";
+import { Connection, createConnection, getConnectionManager } from "typeorm";
+import { ApolloServer } from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
-import {ApolloContext, Context as MyApolloContext} from "./types";
-import {buildSchemaSync} from "type-graphql";
-import {APIGatewayEvent, Context} from "aws-lambda";
+import { ApolloContext, Context as MyApolloContext } from "./types";
+import { buildSchemaSync } from "type-graphql";
+import { APIGatewayEvent, Context } from "aws-lambda";
 import AWS from "aws-sdk";
-import {UserResolver} from "./src/resolvers/UserResolver";
-import {BudgetResolver} from "./src/resolvers/BudgetResolver";
-import {TransactionResolver} from "./src/resolvers/TransactionResolver";
-import {CategoryResolver} from "./src/resolvers/CategoryResolver";
-import {DebtResolver} from "./src/resolvers/DebtResolver";
-import {Account} from "./src/entities/Account";
-import {Budget} from "./src/entities/Budget";
-import {BudgetMembership} from "./src/entities/BudgetMembership";
-import {Category} from "./src/entities/Category";
-import {CycleTransaction} from "./src/entities/CycleTransaction";
-import {Debt} from "./src/entities/Debt";
-import {Merchant} from "./src/entities/Merchant";
-import {Notification} from "./src/entities/Notification";
-import {Plan} from "./src/entities/Plan";
-import {Purchase} from "./src/entities/Purchase";
-import {Transaction} from "./src/entities/Transaction";
-import {User} from "./src/entities/User";
-import {AccountResolver} from "./src/resolvers/AccountResolver";
-import {CycleTransactionResolver} from "./src/resolvers/CycleTransactionResolver";
-import {MerchantResolver} from "./src/resolvers/MerchantResolver";
-import {NotificationResolver} from "./src/resolvers/NotificationResolver";
-import {PurchaseResolver} from "./src/resolvers/PurchaseResolver";
-import {getCookie} from "./src/utils/getCookie";
-import {authChecker} from "./src/utils/authChecker";
+import { UserResolver } from "./src/resolvers/UserResolver";
+import { BudgetResolver } from "./src/resolvers/BudgetResolver";
+import { TransactionResolver } from "./src/resolvers/TransactionResolver";
+import { CategoryResolver } from "./src/resolvers/CategoryResolver";
+import { DebtResolver } from "./src/resolvers/DebtResolver";
+import { Account } from "./src/entities/Account";
+import { Budget } from "./src/entities/Budget";
+import { BudgetMembership } from "./src/entities/BudgetMembership";
+import { Category } from "./src/entities/Category";
+import { CycleTransaction } from "./src/entities/CycleTransaction";
+import { Debt } from "./src/entities/Debt";
+import { Merchant } from "./src/entities/Merchant";
+import { Notification } from "./src/entities/Notification";
+import { Plan } from "./src/entities/Plan";
+import { Purchase } from "./src/entities/Purchase";
+import { Transaction } from "./src/entities/Transaction";
+import { User } from "./src/entities/User";
+import { AccountResolver } from "./src/resolvers/AccountResolver";
+import { CycleTransactionResolver } from "./src/resolvers/CycleTransactionResolver";
+import { MerchantResolver } from "./src/resolvers/MerchantResolver";
+import { NotificationResolver } from "./src/resolvers/NotificationResolver";
+import { PurchaseResolver } from "./src/resolvers/PurchaseResolver";
+import { getCookie } from "./src/utils/getCookie";
+import { authChecker } from "./src/utils/authChecker";
 
-const {STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME} = process.env;
+const { STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
 
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
@@ -113,13 +113,13 @@ if (STAGE === "local") {
 const server = new ApolloServer({
   schema,
   plugins: [httpHeadersPlugin],
-  context: async ({event, context}: ApolloContext): Promise<MyApolloContext> => {
+  context: async ({ event, context }: ApolloContext): Promise<MyApolloContext> => {
     const connection = await getConnection();
     let userId = null;
     const token = getCookie(event, "token");
     if (token !== undefined) {
       try {
-        const user = await User.findOne({where: {token}});
+        const user = await User.findOne({ where: { token } });
         userId = user?.id;
       } catch {}
     }

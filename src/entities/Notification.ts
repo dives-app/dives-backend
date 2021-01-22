@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 
@@ -32,6 +26,6 @@ export class Notification extends BaseEntity {
   time: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.notifications, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, user => user.notifications, { onDelete: "CASCADE" })
   user: User;
 }

@@ -1,26 +1,26 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import argon2 from "argon2";
-import {nanoid} from "nanoid";
-import {ApolloError} from "apollo-server-errors";
-import {GraphQLResolveInfo} from "graphql";
-import {User} from "../entities/User";
-import {Context, NoMethods} from "../../types";
-import {UpdateUserInput, UserInput, UsernamePasswordInput} from "./UserInput";
-import {setToken} from "../utils/setToken";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {updateObject} from "../utils/updateObject";
-import {revokeToken} from "../utils/revokeToken";
-import {isValidPassword} from "../utils/isValidPassword";
+import { nanoid } from "nanoid";
+import { ApolloError } from "apollo-server-errors";
+import { GraphQLResolveInfo } from "graphql";
+import { User } from "../entities/User";
+import { Context, NoMethods } from "../../types";
+import { UpdateUserInput, UserInput, UsernamePasswordInput } from "./UserInput";
+import { setToken } from "../utils/setToken";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { updateObject } from "../utils/updateObject";
+import { revokeToken } from "../utils/revokeToken";
+import { isValidPassword } from "../utils/isValidPassword";
 
-const {S3_BUCKET, S3_REGION, STAGE} = process.env;
+const { S3_BUCKET, S3_REGION, STAGE } = process.env;
 
 @Resolver(() => User)
 export class UserResolver {
   @Authorized()
   @Query(() => User)
-  async user(@Ctx() {userId}: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
+  async user(@Ctx() { userId }: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
     return User.findOne({
-      where: {id: userId},
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
   }
@@ -28,13 +28,13 @@ export class UserResolver {
   @Query(() => User)
   async login(
     @Arg("options") options: UserInput,
-    @Ctx() {setCookies}: Context,
+    @Ctx() { setCookies }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<User>> {
     let userWithSameEmail;
     try {
       userWithSameEmail = await User.findOne({
-        where: {email: options.email},
+        where: { email: options.email },
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -54,15 +54,15 @@ export class UserResolver {
   @Mutation(() => User)
   async register(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() {setCookies}: Context
+    @Ctx() { setCookies }: Context
   ): Promise<NoMethods<User>> {
     const userWithSameEmail = await User.findOne({
-      where: {email: options.email},
+      where: { email: options.email },
     });
     if (userWithSameEmail) {
       throw new ApolloError("Email already in use");
     }
-    const {email, password, name, birthDate} = options;
+    const { email, password, name, birthDate } = options;
     if (!isValidPassword(password)) {
       throw new ApolloError(
         "Invalid password: a valid password should contain at least one digit, small letter, capital letter, special character and be at least 8 characters long",
@@ -89,12 +89,12 @@ export class UserResolver {
   @Mutation(() => User)
   async updateUser(
     @Arg("options") options: UpdateUserInput,
-    @Ctx() {userId, s3, connection}: Context,
+    @Ctx() { userId, s3, connection }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<User>> {
-    const {country, password, photo, birthDate, email, name} = options;
+    const { country, password, photo, birthDate, email, name } = options;
     const userToUpdate = await User.findOne({
-      where: {id: userId},
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     let photoUrl;
@@ -158,19 +158,19 @@ export class UserResolver {
   @Authorized()
   @Mutation(() => User)
   async deleteUser(
-    @Ctx() {userId}: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<User>> {
     const userToDelete = await User.findOne({
-      where: {id: userId},
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    return {...(await userToDelete.remove()), id: userId};
+    return { ...(await userToDelete.remove()), id: userId };
   }
 
   @Authorized()
   @Mutation(() => Boolean)
-  async revokeToken(@Ctx() {userId, connection}: Context): Promise<boolean> {
+  async revokeToken(@Ctx() { userId, connection }: Context): Promise<boolean> {
     try {
       await revokeToken(userId, connection);
       return true;

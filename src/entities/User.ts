@@ -1,20 +1,20 @@
-import {BaseEntity, Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {Field, ObjectType} from "type-graphql";
-import {Category} from "./Category";
-import {Transaction} from "./Transaction";
-import {Account} from "./Account";
-import {BudgetMembership} from "./BudgetMembership";
-import {CycleTransaction} from "./CycleTransaction";
-import {Debt} from "./Debt";
-import {Notification} from "./Notification";
-import {Purchase} from "./Purchase";
-import {Merchant} from "./Merchant";
+import { BaseEntity, Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
+import { Category } from "./Category";
+import { Transaction } from "./Transaction";
+import { Account } from "./Account";
+import { BudgetMembership } from "./BudgetMembership";
+import { CycleTransaction } from "./CycleTransaction";
+import { Debt } from "./Debt";
+import { Notification } from "./Notification";
+import { Purchase } from "./Purchase";
+import { Merchant } from "./Merchant";
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({type: "uuid"})
+  @PrimaryGeneratedColumn({ type: "uuid" })
   id: string;
 
   @Field()
@@ -22,29 +22,29 @@ export class User extends BaseEntity {
   name: string;
 
   @Field()
-  @Column({type: "varchar", unique: true})
+  @Column({ type: "varchar", unique: true })
   email: string;
 
   @Field()
   @Column("date")
   birthDate: string;
 
-  @Field({nullable: true})
-  @Column("varchar", {nullable: true})
+  @Field({ nullable: true })
+  @Column("varchar", { nullable: true })
   country: string;
 
   @Column("varchar")
   password: string;
 
-  @Column({unique: true})
+  @Column({ unique: true })
   @Generated("uuid")
   token: string;
 
-  @Field({nullable: true})
-  @Column("varchar", {nullable: true})
+  @Field({ nullable: true })
+  @Column("varchar", { nullable: true })
   photoUrl: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   updatePhotoUrl: string;
 
   @Field(() => [Category])

@@ -1,5 +1,5 @@
-import {InputType, Field} from "type-graphql";
-import {AccessLevel} from "../entities/BudgetMembership";
+import { InputType, Field } from "type-graphql";
+import { AccessLevel } from "../entities/BudgetMembership";
 
 @InputType()
 export class BudgetInput {
@@ -11,7 +11,7 @@ export class BudgetInput {
 export class NewBudgetInput {
   @Field()
   name: string;
-  @Field({nullable: true})
+  @Field({ nullable: true })
   limit?: number;
 }
 
@@ -19,9 +19,9 @@ export class NewBudgetInput {
 export class UpdateBudgetInput {
   @Field()
   id: string;
-  @Field({nullable: true})
+  @Field({ nullable: true })
   name?: string;
-  @Field({nullable: true})
+  @Field({ nullable: true })
   limit?: number;
 }
 
@@ -31,7 +31,7 @@ export class AddBudgetMemberInput {
   budgetId: string;
   @Field()
   email: string;
-  @Field({nullable: true})
+  @Field({ nullable: true })
   accessLevel?: AccessLevel;
 }
 

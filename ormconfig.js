@@ -1,5 +1,5 @@
-require("env-yaml").config({path: "env.yml"});
-const {DB_HOST, DB_PASSWORD, DB_USERNAME, DB_PORT, DB_NAME} = process.env;
+require("env-yaml").config({ path: "env.yml" });
+const { DB_HOST, DB_PASSWORD, DB_USERNAME, DB_PORT, DB_NAME } = process.env;
 
 module.exports = {
   type: "postgres",

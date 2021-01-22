@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 
@@ -48,6 +42,6 @@ export class Debt extends BaseEntity {
   color: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.debts, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, user => user.debts, { onDelete: "CASCADE" })
   owner: User;
 }

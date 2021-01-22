@@ -1,23 +1,23 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Account} from "../entities/Account";
-import {Context, NoMethods} from "../../types";
-import {ApolloError} from "apollo-server-errors";
-import {AccountInput, NewAccountInput, UpdateAccountInput} from "./AccountInput";
-import {User} from "../entities/User";
-import {updateObject} from "../utils/updateObject";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Account } from "../entities/Account";
+import { Context, NoMethods } from "../../types";
+import { ApolloError } from "apollo-server-errors";
+import { AccountInput, NewAccountInput, UpdateAccountInput } from "./AccountInput";
+import { User } from "../entities/User";
+import { updateObject } from "../utils/updateObject";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
 
 @Resolver(() => Account)
 export class AccountResolver {
   @Query(() => Account)
   async account(
-    @Arg("options") {id}: AccountInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: AccountInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Account>> {
     const account = await Account.findOne({
-      where: {id},
+      where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     if (!account) {
@@ -33,9 +33,9 @@ export class AccountResolver {
   @Mutation(() => Account)
   async createAccount(
     @Arg("options") options: NewAccountInput,
-    @Ctx() {userId}: Context
+    @Ctx() { userId }: Context
   ): Promise<NoMethods<Account>> {
-    const {name, balance, color, currency, description, icon, type} = options;
+    const { name, balance, color, currency, description, icon, type } = options;
     try {
       return Account.create({
         name,
@@ -45,7 +45,7 @@ export class AccountResolver {
         iconUrl: icon,
         type,
         description,
-        owner: await User.findOne({where: {id: userId}}),
+        owner: await User.findOne({ where: { id: userId } }),
       }).save();
     } catch (e) {
       throw new ApolloError(e);
@@ -56,7 +56,7 @@ export class AccountResolver {
   @Mutation(() => Account)
   async updateAccount(
     @Arg("options") options: UpdateAccountInput,
-    @Ctx() {userId}: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Account>> {
     const {
@@ -74,7 +74,7 @@ export class AccountResolver {
       owner,
     } = options;
     const account = await Account.findOne({
-      where: {id},
+      where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     if (!account) {
@@ -86,7 +86,7 @@ export class AccountResolver {
     try {
       let ownerAccount;
       if (owner !== undefined) {
-        ownerAccount = await Account.find({where: {id: owner}});
+        ownerAccount = await Account.find({ where: { id: owner } });
       }
       updateObject(account, {
         name,
@@ -101,7 +101,7 @@ export class AccountResolver {
         billingPeriod,
         owner: ownerAccount,
       });
-      return {...(await account.save()), id};
+      return { ...(await account.save()), id };
     } catch (e) {
       throw new ApolloError(e);
     }
@@ -110,12 +110,12 @@ export class AccountResolver {
   @Authorized()
   @Mutation(() => Account)
   async deleteAccount(
-    @Arg("options") {id}: AccountInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: AccountInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Account>> {
     const account = await Account.findOne({
-      where: {id},
+      where: { id },
       relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
@@ -124,6 +124,6 @@ export class AccountResolver {
     if (account.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this account");
     }
-    return {...(await account.remove()), id};
+    return { ...(await account.remove()), id };
   }
 }

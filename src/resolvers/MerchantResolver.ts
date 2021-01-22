@@ -1,12 +1,12 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Merchant} from "../entities/Merchant";
-import {Context, NoMethods} from "../../types";
-import {ApolloError} from "apollo-server-errors";
-import {MerchantInput, NewMerchantInput, UpdateMerchantInput} from "./MerchantInput";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
-import {updateObject} from "../utils/updateObject";
-import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Merchant } from "../entities/Merchant";
+import { Context, NoMethods } from "../../types";
+import { ApolloError } from "apollo-server-errors";
+import { MerchantInput, NewMerchantInput, UpdateMerchantInput } from "./MerchantInput";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
+import { updateObject } from "../utils/updateObject";
+import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 
 @Resolver(() => Merchant)
 export class MerchantResolver {
@@ -19,7 +19,7 @@ export class MerchantResolver {
     // TODO: Check if user has permissions to merchant
     try {
       return await Merchant.findOne({
-        where: {id: options.id},
+        where: { id: options.id },
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -29,7 +29,7 @@ export class MerchantResolver {
 
   @Authorized()
   @Mutation(() => Merchant)
-  async createMerchant(@Arg("options") {name}: NewMerchantInput): Promise<NoMethods<Merchant>> {
+  async createMerchant(@Arg("options") { name }: NewMerchantInput): Promise<NoMethods<Merchant>> {
     let merchant;
     try {
       merchant = await Merchant.create({
@@ -44,11 +44,11 @@ export class MerchantResolver {
   @Authorized()
   @Mutation(() => Merchant)
   async updateMerchant(
-    @Arg("options") {id, name}: UpdateMerchantInput,
+    @Arg("options") { id, name }: UpdateMerchantInput,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
-      where: {id},
+      where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     updateObject(merchant, {
@@ -61,12 +61,12 @@ export class MerchantResolver {
   @Authorized()
   @Mutation(() => Merchant)
   async deleteMerchant(
-    @Arg("options") {id}: MerchantInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: MerchantInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
-      where: {merchant: id},
+      where: { merchant: id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     const budgetMemberships = await BudgetMembership.find({
@@ -86,6 +86,6 @@ export class MerchantResolver {
     if (merchant.ownerUser.id !== userId && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
-    return {...(await merchant.remove()), id};
+    return { ...(await merchant.remove()), id };
   }
 }

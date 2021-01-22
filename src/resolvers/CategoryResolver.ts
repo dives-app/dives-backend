@@ -1,14 +1,14 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Category} from "../entities/Category";
-import {Context, NoMethods} from "../../types";
-import {ApolloError} from "apollo-server-errors";
-import {CategoryInput, NewCategoryInput, UpdateCategoryInput} from "./CategoryInput";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
-import {updateObject} from "../utils/updateObject";
-import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
-import {Budget} from "../entities/Budget";
-import {User} from "../entities/User";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Category } from "../entities/Category";
+import { Context, NoMethods } from "../../types";
+import { ApolloError } from "apollo-server-errors";
+import { CategoryInput, NewCategoryInput, UpdateCategoryInput } from "./CategoryInput";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
+import { updateObject } from "../utils/updateObject";
+import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
+import { Budget } from "../entities/Budget";
+import { User } from "../entities/User";
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -16,13 +16,13 @@ export class CategoryResolver {
   @Query(() => Category)
   async category(
     @Arg("options") options: CategoryInput,
-    @Ctx() {userId}: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Category>> {
     let category;
     try {
       category = await Category.findOne({
-        where: {id: options.id},
+        where: { id: options.id },
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -33,7 +33,7 @@ export class CategoryResolver {
       return category;
     }
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: category.ownerBudget.id, user: userId},
+      where: { budget: category.ownerBudget.id, user: userId },
     });
     if (budgetMembership) {
       return category;
@@ -45,15 +45,15 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async createCategory(
     @Arg("options")
-    {name, limit, color, icon, ownerBudget, type}: NewCategoryInput,
-    @Ctx() {userId}: Context
+    { name, limit, color, icon, ownerBudget, type }: NewCategoryInput,
+    @Ctx() { userId }: Context
   ): Promise<NoMethods<Category>> {
     let category;
     let hasBudget = false;
     if (ownerBudget !== undefined) {
       const membership = await BudgetMembership.findOne({
-        user: {id: userId},
-        budget: {id: ownerBudget},
+        user: { id: userId },
+        budget: { id: ownerBudget },
       });
       if (!membership) throw new ApolloError("No such budget");
       if (
@@ -72,8 +72,8 @@ export class CategoryResolver {
         limit,
         color,
         iconUrl: icon,
-        ownerBudget: hasBudget && (await Budget.findOne({where: {id: ownerBudget}})),
-        ownerUser: !hasBudget && (await User.findOne({where: {id: userId}})),
+        ownerBudget: hasBudget && (await Budget.findOne({ where: { id: ownerBudget } })),
+        ownerUser: !hasBudget && (await User.findOne({ where: { id: userId } })),
         type,
       }).save();
     } catch (err) {
@@ -86,12 +86,12 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async updateCategory(
     @Arg("options")
-    {id, name, limit, color, icon, type}: UpdateCategoryInput,
-    @Ctx() {userId}: Context,
+    { id, name, limit, color, icon, type }: UpdateCategoryInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
-      where: {id},
+      where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     // TODO: create abstract logic for that and make it more efficient
@@ -126,12 +126,12 @@ export class CategoryResolver {
   @Authorized()
   @Mutation(() => Category)
   async deleteCategory(
-    @Arg("options") {id}: CategoryInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: CategoryInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
-      where: {category: id},
+      where: { category: id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     const budgetMemberships = await BudgetMembership.find({
@@ -151,6 +151,6 @@ export class CategoryResolver {
     if (category.ownerUser.id !== userId && !budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
-    return {...(await category.remove()), id};
+    return { ...(await category.remove()), id };
   }
 }

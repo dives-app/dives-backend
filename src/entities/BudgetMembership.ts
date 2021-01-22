@@ -13,13 +13,13 @@ export enum AccessLevel {
 @Entity()
 export class BudgetMembership extends BaseEntity {
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.budgetMembership, {
+  @ManyToOne(() => User, user => user.budgetMembership, {
     primary: true,
   })
   user: User;
 
   @Field(() => Budget)
-  @ManyToOne(() => Budget, (budget) => budget.membership, {
+  @ManyToOne(() => Budget, budget => budget.membership, {
     primary: true,
     onDelete: "CASCADE",
   })

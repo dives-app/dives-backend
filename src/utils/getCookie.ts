@@ -1,6 +1,12 @@
-import {APIGatewayProxyEvent} from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 
-export function getCookie(event: APIGatewayProxyEvent, cookieName: string) {
+/**
+ * Searches for a cookie in APIGatewayProxyEvent and returns its value
+ * @param event APIGatewayProxyEvent
+ * @param cookieName cookie to search
+ * @returns cookie value or undefined if not found
+ */
+export function getCookie(event: APIGatewayProxyEvent, cookieName: string): string | undefined {
   const matcher = new RegExp(`${cookieName}=.*?(?=;|$)`, "m");
   return event.headers.Cookie.match(matcher)?.[0]?.slice(cookieName.length + 1);
 }

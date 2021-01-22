@@ -1,8 +1,8 @@
-import {Arg, Authorized, Ctx, Info, Mutation, Query, Resolver} from "type-graphql";
-import {Budget} from "../entities/Budget";
-import {Context, NoMethods} from "../../types";
-import {ApolloError} from "apollo-server-errors";
-import {AccessLevel, BudgetMembership} from "../entities/BudgetMembership";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Budget } from "../entities/Budget";
+import { Context, NoMethods } from "../../types";
+import { ApolloError } from "apollo-server-errors";
+import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
 import {
   AddBudgetMemberInput,
   BudgetInput,
@@ -10,10 +10,10 @@ import {
   RemoveBudgetMemberInput,
   UpdateBudgetInput,
 } from "./BudgetInput";
-import {getRelationSubfields} from "../utils/getRelationSubfields";
-import {GraphQLResolveInfo} from "graphql";
-import {updateObject} from "../utils/updateObject";
-import {User} from "../entities/User";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
+import { GraphQLResolveInfo } from "graphql";
+import { updateObject } from "../utils/updateObject";
+import { User } from "../entities/User";
 
 @Resolver(() => Budget)
 export class BudgetResolver {
@@ -21,11 +21,11 @@ export class BudgetResolver {
   @Query(() => Budget)
   async budget(
     @Arg("options") options: BudgetInput,
-    @Ctx() {userId}: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Budget>> {
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: options.id, user: userId},
+      where: { budget: options.id, user: userId },
     });
     if (!budgetMembership) {
       throw new ApolloError("There is no budget with that id");
@@ -40,7 +40,7 @@ export class BudgetResolver {
 
     try {
       return await Budget.findOne({
-        where: {id: options.id},
+        where: { id: options.id },
         relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
       });
     } catch (e) {
@@ -51,8 +51,8 @@ export class BudgetResolver {
   @Authorized()
   @Mutation(() => Budget)
   async createBudget(
-    @Arg("options") {name, limit}: NewBudgetInput,
-    @Ctx() {userId}: Context
+    @Arg("options") { name, limit }: NewBudgetInput,
+    @Ctx() { userId }: Context
   ): Promise<NoMethods<Budget>> {
     let budget;
     try {
@@ -62,7 +62,7 @@ export class BudgetResolver {
       }).save();
       await BudgetMembership.create({
         accessLevel: AccessLevel.OWNER,
-        user: {id: userId},
+        user: { id: userId },
         budget,
       }).save();
     } catch (err) {
@@ -74,12 +74,12 @@ export class BudgetResolver {
   @Authorized()
   @Mutation(() => Budget)
   async updateBudget(
-    @Arg("options") {id, name, limit}: UpdateBudgetInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id, name, limit }: UpdateBudgetInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Budget>> {
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: id, user: userId},
+      where: { budget: id, user: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     if (!budgetMembership) {
@@ -93,20 +93,20 @@ export class BudgetResolver {
         "You don't have access to edit this budget, only OWNER or EDITOR can edit a budget"
       );
     }
-    const budget = await Budget.findOne({where: {id}});
-    updateObject(budget, {name, limit});
-    return {...(await budget.save()), id};
+    const budget = await Budget.findOne({ where: { id } });
+    updateObject(budget, { name, limit });
+    return { ...(await budget.save()), id };
   }
 
   @Authorized()
   @Mutation(() => Budget)
   async deleteBudget(
-    @Arg("options") {id}: BudgetInput,
-    @Ctx() {userId}: Context,
+    @Arg("options") { id }: BudgetInput,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Budget>> {
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: id, user: userId},
+      where: { budget: id, user: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
     if (!budgetMembership) throw new ApolloError("No such budget for that user");
@@ -115,20 +115,20 @@ export class BudgetResolver {
         "You don't have access to delete this budget, only OWNER can delete a budget"
       );
     }
-    const budget = await Budget.findOne({where: {id}});
-    return {...(await budget.remove()), id};
+    const budget = await Budget.findOne({ where: { id } });
+    return { ...(await budget.remove()), id };
   }
 
   @Authorized()
   @Mutation(() => Boolean)
   async addBudgetMember(
-    @Arg("options") {budgetId, email, accessLevel = AccessLevel.OBSERVER}: AddBudgetMemberInput,
-    @Ctx() {userId}: Context
+    @Arg("options") { budgetId, email, accessLevel = AccessLevel.OBSERVER }: AddBudgetMemberInput,
+    @Ctx() { userId }: Context
   ): Promise<boolean> {
     if (!(accessLevel in AccessLevel))
       throw new ApolloError("Invalid access level should be OWNER, EDITOR or OBSERVER");
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: budgetId, user: userId},
+      where: { budget: budgetId, user: userId },
     });
     if (!budgetMembership) {
       throw new ApolloError("There is no budget with that id");
@@ -138,13 +138,13 @@ export class BudgetResolver {
         "You don't have access to edit this budget, only OWNER can add user to a budget"
       );
     }
-    const userToAdd = await User.findOne({where: {email}});
+    const userToAdd = await User.findOne({ where: { email } });
     if (!userToAdd) throw new ApolloError("No user with that email");
 
     try {
       await BudgetMembership.create({
         user: userToAdd,
-        budget: await Budget.findOne({where: {id: budgetId}}),
+        budget: await Budget.findOne({ where: { id: budgetId } }),
         accessLevel,
       }).save();
     } catch (e) {
@@ -156,11 +156,11 @@ export class BudgetResolver {
   @Authorized()
   @Mutation(() => Boolean)
   async removeBudgetMember(
-    @Arg("options") {budgetId, userId}: RemoveBudgetMemberInput,
-    @Ctx() {userId: currentUserId}: Context
+    @Arg("options") { budgetId, userId }: RemoveBudgetMemberInput,
+    @Ctx() { userId: currentUserId }: Context
   ): Promise<boolean> {
     const budgetMembership = await BudgetMembership.findOne({
-      where: {budget: budgetId, user: currentUserId},
+      where: { budget: budgetId, user: currentUserId },
     });
     if (!budgetMembership) {
       throw new ApolloError("There is no budget with that id");
@@ -171,8 +171,8 @@ export class BudgetResolver {
       );
     }
     const membership = await BudgetMembership.findOne(
-      {user: {id: userId}, budget: {id: budgetId}},
-      {relations: ["user", "budget"]}
+      { user: { id: userId }, budget: { id: budgetId } },
+      { relations: ["user", "budget"] }
     );
     if (!membership) throw new ApolloError("No such user in the budget");
     try {

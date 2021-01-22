@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Category } from "./Category";
 import { Account } from "./Account";
@@ -40,29 +34,29 @@ export class CycleTransaction extends BaseEntity {
   description: string;
 
   @Field(() => Category)
-  @ManyToOne(() => Category, (category) => category.cycleTransactions)
+  @ManyToOne(() => Category, category => category.cycleTransactions)
   category: Category;
 
   @Field(() => Account)
-  @ManyToOne(() => Account, (account) => account.cycleTransaction, {
+  @ManyToOne(() => Account, account => account.cycleTransaction, {
     nullable: true,
   })
   account: Account;
 
   @Field(() => Budget, { nullable: true })
-  @ManyToOne(() => Budget, (budget) => budget.cycleTransactions, {
+  @ManyToOne(() => Budget, budget => budget.cycleTransactions, {
     nullable: true,
   })
   budget: Budget;
 
   @Field(() => Merchant, { nullable: true })
-  @ManyToOne(() => Merchant, (merchant) => merchant.cycleTransactions, {
+  @ManyToOne(() => Merchant, merchant => merchant.cycleTransactions, {
     nullable: true,
   })
   merchant: Merchant;
 
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (creator) => creator.cycleTransactions, {
+  @ManyToOne(() => User, creator => creator.cycleTransactions, {
     nullable: true,
   })
   creator: User;

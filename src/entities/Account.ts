@@ -1,11 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Transaction } from "./Transaction";
 import { User } from "./User";
@@ -66,16 +59,16 @@ export class Account extends BaseEntity {
   billingPeriod: number;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.accounts, {
+  @ManyToOne(() => User, user => user.accounts, {
     onDelete: "CASCADE",
   })
   owner: User;
 
   @Field(() => [Transaction])
-  @OneToMany(() => Transaction, (transaction) => transaction.account)
+  @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];
 
   @Field(() => [CycleTransaction])
-  @OneToMany(() => CycleTransaction, (transaction) => transaction.account)
+  @OneToMany(() => CycleTransaction, transaction => transaction.account)
   cycleTransaction: CycleTransaction[];
 }
