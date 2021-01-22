@@ -60,7 +60,7 @@ export class UserResolver {
       where: { email: options.email },
     });
     if (userWithSameEmail) {
-      throw new ApolloError("Email already in use");
+      throw new ApolloError("Email already in use", "EMAIL_ALREADY_IN_USE");
     }
     const { email, password, name, birthDate } = options;
     if (!isValidPassword(password)) {

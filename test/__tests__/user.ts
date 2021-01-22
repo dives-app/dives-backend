@@ -5,6 +5,23 @@ import { getManager } from "typeorm";
 
 describe("User", () => {
   let server;
+  const CREATE_USER = gql`
+    mutation {
+      register(
+        options: {
+          email: "test@user.com"
+          password: "legitP@55"
+          name: "Test User"
+          birthDate: "2001-02-03"
+        }
+      ) {
+        id
+        email
+        name
+        birthDate
+      }
+    }
+  `;
   beforeEach(async () => {
     server = new TestServer();
     server.init();
@@ -14,85 +31,105 @@ describe("User", () => {
     await getManager().query(
       `TRUNCATE "account", "budget", "budget_membership", "category", "cycle_transaction", "debt", "merchant", "notification", "plan", "purchase", "transaction", "user" CASCADE;`
     );
-    console.log("end");
   });
 
   test("Gets user", async () => {
-    expect.assertions(2);
-    const CREATE_USER = gql`
-      mutation {
-        register(
-          options: {
-            email: "test@user.com"
-            password: "legitP@55"
-            name: "Test User"
-            birthDate: "03-02-2001"
-          }
-        ) {
-          id
-          email
-        }
-      }
-    `;
-    const GET_USER_ID = gql`
+    expect.assertions(1);
+    const GET_USER = gql`
       query {
         user {
           id
           name
+          email
+          birthDate
         }
       }
     `;
     const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
-    const { data } = await query({ query: GET_USER_ID });
-    expect(data.user.id).toBe(server.loggedUserId);
-    expect(data.user.name).toBe("Test User");
+    const { data } = await query({ query: GET_USER });
+    expect(data.user).toEqual({
+      id: server.loggedUserId,
+      email: "test@user.com",
+      name: "Test User",
+      birthDate: "2001-02-03",
+    });
   });
 
   test("Creates user", async () => {
     expect.assertions(1);
-    const CREATE_USER = gql`
+    const { mutate } = createTestClient(server.server);
+    const res = await mutate({ mutation: CREATE_USER });
+    expect(res.data.register).toEqual({
+      id: expect.any(String),
+      email: "test@user.com",
+      name: "Test User",
+      birthDate: "2001-02-03",
+    });
+  });
+
+  test("Updates user", async () => {
+    const UPDATE_USER = gql`
       mutation {
-        register(
+        updateUser(
           options: {
-            email: "test@user.com"
-            password: "legitP@55"
-            name: "Test User"
-            birthDate: "2001-02-03"
+            name: "Updated User"
+            email: "updated@test.com"
+            birthDate: "2001-03-02"
+            country: "PLN"
           }
         ) {
           id
+          name
           email
+          birthDate
+          country
         }
       }
     `;
+    expect.assertions(1);
     const { mutate } = createTestClient(server.server);
-    const res = await mutate({ mutation: CREATE_USER });
-    expect(res.data.register.email).toBe("test@user.com");
+    const createUserResponse = await mutate({ mutation: CREATE_USER });
+    server.loggedUserId = createUserResponse.data.register.id;
+    const res = await mutate({ mutation: UPDATE_USER });
+    expect(res.data.updateUser).toEqual({
+      id: server.loggedUserId,
+      name: "Updated User",
+      email: "updated@test.com",
+      birthDate: "2001-03-02",
+      country: "PLN",
+    });
   });
 
   test("Throws on email collision", async () => {
     expect.assertions(2);
-    const CREATE_USER = gql`
+    const { mutate } = createTestClient(server.server);
+    await mutate({ mutation: CREATE_USER });
+    const collisionResponse = await mutate({ mutation: CREATE_USER });
+    expect(collisionResponse.data).toBeNull();
+    expect(collisionResponse.errors[0].extensions.code).toBe("EMAIL_ALREADY_IN_USE");
+  });
+
+  test("Throws on weak password", async () => {
+    expect.assertions(2);
+    const CREATE_WEAK_USER = gql`
       mutation {
         register(
           options: {
             email: "test@user.com"
-            password: "legitP@55"
+            password: "myPassword1"
             name: "Test User"
             birthDate: "2001-02-03"
           }
         ) {
           id
-          email
         }
       }
     `;
     const { mutate } = createTestClient(server.server);
-    await mutate({ mutation: CREATE_USER });
-    const collisionResponse = await mutate({ mutation: CREATE_USER });
-    expect(collisionResponse.data).toBeNull();
-    expect(collisionResponse.errors).toMatchSnapshot();
+    const response = await mutate({ mutation: CREATE_WEAK_USER });
+    expect(response.data).toBeNull();
+    expect(response.errors[0].extensions.code).toBe("INVALID_PASSWORD");
   });
 });

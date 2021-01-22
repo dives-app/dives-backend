@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2017"],
+    "lib": [
+      "es2017"
+    ],
     "removeComments": true,
     "moduleResolution": "node",
     "module": "CommonJS",
@@ -13,7 +15,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["./**/*.ts"],
+  "include": [
+    "./**/*.ts"
+  ],
   "exclude": [
     "node_modules/**/*",
     ".serverless/**/*",
