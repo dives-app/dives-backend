@@ -7,8 +7,10 @@
     "build:local": "npm_config_build_from_source=true yarn",
     "prebuild:lambda": "rm -Rf build_output && mkdir build_output",
     "build:lambda": "docker build -t dives_lambda_build -f build.Dockerfile . && docker run -v $(pwd)/build_output:/build_output/node_modules dives_lambda_build",
-    "postbuild:lambda": "rm -Rf node_modules && mv build_output node_modules",
-    "deploy": "npm run build:lambda && serverless deploy --stage staging",
+    "postbuild:lambda": "rm -Rf build_output/aws-sdk",
+    "predeploy": "tsc && mv build_output build/node_modules",
+    "deploy": "serverless deploy --stage staging || true",
+    "postdeploy": "mv build/node_modules build_output",
     "migration:run": "typeorm migration:run",
     "pretest:e2e": "npm run test:db && typeorm migration:run -f test/ormconfig-test",
     "test:e2e": "jest test/",
@@ -55,9 +57,7 @@
     "serverless-offline": "^6.7.0",
     "serverless-s3-local": "^0.6.7",
     "ts-jest": "^26.3.0",
-    "ts-loader": "^8.0.3",
-    "typescript": "^4.0.2",
-    "webpack": "^4.44.1"
+    "typescript": "^4.0.2"
   },
   "resolutions": {
     "graphql": "15.3.0"

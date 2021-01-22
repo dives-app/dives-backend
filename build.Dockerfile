@@ -14,4 +14,4 @@ RUN yum install -y yarn
 ENV npm_config_build_from_source=true
 
 CMD rm -Rf node_modules
-CMD yarn install
+CMD yarn install --production=true

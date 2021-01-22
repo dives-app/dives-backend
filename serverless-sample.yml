@@ -1,8 +1,6 @@
-service:
-  name: dives-backend
-# app and org for use with dashboard.serverless.com
-app: dives-backend-app
 org: filipw01
+app: dives
+service: dives-backend
 
 plugins:
   - serverless-offline
@@ -11,24 +9,29 @@ plugins:
 provider:
   name: aws
   region: eu-central-1
-  stage: ${opt:stage, 'dev'}
+  stage: dev
   memorySize: 512
   runtime: nodejs12.x
   role: LambdaRole
+  lambdaHashingVersion: 20201221
+  apiGateway:
+    shouldStartNameWithService: true
   environment:
-    STAGE: ${self:provider.stage}
-    SERVER_HOST: ${self:custom.${self:provider.stage}.SERVER_HOST}
-    DB_HOST: ${self:custom.${self:provider.stage}.DB_HOST}
-    DB_PORT: ${self:custom.${self:provider.stage}.DB_PORT}
-    DB_NAME: ${self:custom.${self:provider.stage}.DB_NAME}
-    DB_USERNAME: ${self:custom.${self:provider.stage}.DB_USERNAME}
-    DB_PASSWORD: ${self:custom.${self:provider.stage}.DB_PASSWORD}
+    STAGE: ${self:custom.stage}
+    SERVER_HOST: ${self:custom.${self:custom.stage}.SERVER_HOST}
+    DB_HOST: ${self:custom.${self:custom.stage}.DB_HOST}
+    DB_PORT: ${self:custom.${self:custom.stage}.DB_PORT}
+    DB_NAME: ${self:custom.${self:custom.stage}.DB_NAME}
+    DB_USERNAME: ${self:custom.${self:custom.stage}.DB_USERNAME}
+    DB_PASSWORD: ${self:custom.${self:custom.stage}.DB_PASSWORD}
     S3_REGION: ${self:provider.region}
-    S3_BUCKET: ${self:custom.${self:provider.stage}.S3_BUCKET}
+    S3_BUCKET: ${self:custom.${self:custom.stage}.S3_BUCKET}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     JWT_SECRET: secret
 
 custom:
+  stage: ${opt:stage, self:provider.stage}
+
   dev: ${file(env.yml)}
   staging:
     SERVER_HOST:
@@ -193,10 +196,10 @@ resources:
       DependsOn: [ ServerlessVPCGA ]
       Type: AWS::RDS::DBInstance
       Properties:
-        MasterUsername: ${self:custom.${self:provider.stage}.DB_USERNAME}
-        MasterUserPassword: ${self:custom.${self:provider.stage}.DB_PASSWORD}
+        MasterUsername: ${self:custom.${self:custom.stage}.DB_USERNAME}
+        MasterUserPassword: ${self:custom.${self:custom.stage}.DB_PASSWORD}
         AllocatedStorage: "20"
-        DBName: ${self:custom.${self:provider.stage}.DB_NAME}
+        DBName: ${self:custom.${self:custom.stage}.DB_NAME}
         DBInstanceClass: db.t2.micro
         VPCSecurityGroups:
           - !GetAtt ServerlessSecurityGroup.GroupId
@@ -208,13 +211,13 @@ resources:
     FilesBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.${self:provider.stage}.S3_BUCKET}
+        BucketName: ${self:custom.${self:custom.stage}.S3_BUCKET}
     FilesBucketPermissions:
       Type: AWS::S3::BucketPolicy
       DependsOn:
         - FilesBucket
       Properties:
-        Bucket: ${self:custom.${self:provider.stage}.S3_BUCKET}
+        Bucket: ${self:custom.${self:custom.stage}.S3_BUCKET}
         PolicyDocument:
           Statement:
             - Principal: "*"
@@ -223,7 +226,13 @@ resources:
                 - s3:PutObjectAcl
               Effect: Allow
               Sid: "AddPerm"
-              Resource: arn:aws:s3:::${self:custom.${self:provider.stage}.S3_BUCKET}/*
+              Resource: arn:aws:s3:::${self:custom.${self:custom.stage}.S3_BUCKET}/*
+
+package:
+  exclude:
+    - "*/**"
+  include:
+    - build/**
 
 functions:
   apollo:
