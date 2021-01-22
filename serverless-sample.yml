@@ -11,7 +11,7 @@ plugins:
 provider:
   name: aws
   region: eu-central-1
-  stage: ${opt:stage, 'local'}
+  stage: ${opt:stage, 'dev'}
   memorySize: 512
   runtime: nodejs12.x
   role: LambdaRole
@@ -29,8 +29,8 @@ provider:
     JWT_SECRET: secret
 
 custom:
-  local: ${file(env.yml)}
-  dev:
+  dev: ${file(env.yml)}
+  staging:
     SERVER_HOST:
       Fn::Join:
         - ""

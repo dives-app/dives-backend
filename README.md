@@ -22,7 +22,7 @@ docker-compose up --build
 
 ## Endpoints
 
-GraphQL API runs on `http://localhost:3000/local/graphql`
+GraphQL API runs on `http://localhost:3000/dev/graphql`
 
 `Adminer` - a tool to explore the database runs on `http://localhost:8080`
 

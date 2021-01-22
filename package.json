@@ -8,7 +8,7 @@
     "prebuild:lambda": "rm -Rf build_output && mkdir build_output",
     "build:lambda": "docker build -t dives_lambda_build -f build.Dockerfile . && docker run -v $(pwd)/build_output:/build_output/node_modules dives_lambda_build",
     "postbuild:lambda": "rm -Rf node_modules && mv build_output node_modules",
-    "deploy": "npm run build:lambda && serverless deploy --stage dev",
+    "deploy": "npm run build:lambda && serverless deploy --stage staging",
     "migration:run": "typeorm migration:run",
     "test": "jest",
     "serve": "serverless offline --allowCache",
