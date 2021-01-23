@@ -24,5 +24,6 @@ jobs:
       - name: Build node_modules for Lambda
         run: yarn build:lambda
 
+      # TODO: Add serverless.yml with correct env variables to work
       - name: Deploy to AWS
         run: yarn deploy
