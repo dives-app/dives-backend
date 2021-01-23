@@ -11,6 +11,8 @@
     "predeploy": "tsc && mv build_output build/node_modules",
     "deploy": "serverless deploy --stage staging || true",
     "postdeploy": "mv build/node_modules build_output",
+    "predeploy:ci": "tsc && mv build_output build/node_modules",
+    "deploy:ci": "serverless deploy --stage staging || true",
     "migration:run": "typeorm migration:run",
     "pretest:e2e": "npm run test:db && tsc && typeorm migration:run -f test/ormconfig-test",
     "test:e2e": "jest test/",
