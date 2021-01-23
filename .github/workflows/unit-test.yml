@@ -3,8 +3,7 @@ name: Unit test
 on:
   push:
     branches:
-      - "master"
-      - "develop"
+      - "*"
 jobs:
   test:
     runs-on: ubuntu-latest
