@@ -19,7 +19,12 @@ export class Purchase extends BaseEntity {
   endDate: string;
 
   @Field()
-  @Column("money")
+  @Column("money", {
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
   price: string;
 
   @Field()

@@ -18,7 +18,13 @@ export class CycleTransaction extends BaseEntity {
   name: string;
 
   @Field({ nullable: true })
-  @Column("money", { nullable: true })
+  @Column("money", {
+    nullable: true,
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
   amount: number;
 
   @Field()

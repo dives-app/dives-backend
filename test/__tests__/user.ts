@@ -33,6 +33,18 @@ describe("User", () => {
     );
   });
 
+  test("Creates user", async () => {
+    expect.assertions(1);
+    const { mutate } = createTestClient(server.server);
+    const res = await mutate({ mutation: CREATE_USER });
+    expect(res.data.register).toEqual({
+      id: expect.any(String),
+      email: "test@user.com",
+      name: "Test User",
+      birthDate: "2001-02-03",
+    });
+  });
+
   test("Gets user", async () => {
     expect.assertions(1);
     const GET_USER = gql`
@@ -57,19 +69,8 @@ describe("User", () => {
     });
   });
 
-  test("Creates user", async () => {
-    expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
-    const res = await mutate({ mutation: CREATE_USER });
-    expect(res.data.register).toEqual({
-      id: expect.any(String),
-      email: "test@user.com",
-      name: "Test User",
-      birthDate: "2001-02-03",
-    });
-  });
-
   test("Updates user", async () => {
+    expect.assertions(1);
     const UPDATE_USER = gql`
       mutation {
         updateUser(
@@ -88,7 +89,6 @@ describe("User", () => {
         }
       }
     `;
-    expect.assertions(1);
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
@@ -99,6 +99,30 @@ describe("User", () => {
       email: "updated@test.com",
       birthDate: "2001-03-02",
       country: "PLN",
+    });
+  });
+
+  test("Deletes user", async () => {
+    expect.assertions(1);
+    const DELETE_USER = gql`
+      mutation {
+        deleteUser {
+          id
+          email
+          name
+          birthDate
+        }
+      }
+    `;
+    const { mutate } = createTestClient(server.server);
+    const createUserResponse = await mutate({ mutation: CREATE_USER });
+    server.loggedUserId = createUserResponse.data.register.id;
+    const res = await mutate({ mutation: DELETE_USER });
+    expect(res.data.deleteUser).toEqual({
+      id: server.loggedUserId,
+      email: "test@user.com",
+      name: "Test User",
+      birthDate: "2001-02-03",
     });
   });
 

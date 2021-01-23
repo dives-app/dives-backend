@@ -18,7 +18,12 @@ export class Transaction extends BaseEntity {
   name: string;
 
   @Field()
-  @Column("money")
+  @Column("money", {
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
   amount: number;
 
   @Field()

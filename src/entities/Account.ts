@@ -31,7 +31,12 @@ export class Account extends BaseEntity {
   description: string;
 
   @Field()
-  @Column("money")
+  @Column("money", {
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
   balance: number;
 
   @Field()

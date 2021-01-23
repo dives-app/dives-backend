@@ -18,7 +18,7 @@ export class AccountResolver {
   ): Promise<NoMethods<Account>> {
     const account = await Account.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
       throw new ApolloError("No account found");
@@ -75,7 +75,7 @@ export class AccountResolver {
     } = options;
     const account = await Account.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
       throw new ApolloError("There is no account with that id");

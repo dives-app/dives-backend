@@ -1,0 +1,430 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Account {
+    balance: Float!
+    billingDate: String
+    billingPeriod: Float
+    color: String!
+    currency: String!
+    cycleTransaction: [CycleTransaction!]!
+    description: String
+    iconUrl: String!
+    id: String!
+    interestRate: Float
+    name: String!
+    owner: User!
+    transactions: [Transaction!]!
+    type: Float!
+}
+
+type Budget {
+    categories: [Category!]!
+    cycleTransactions: [CycleTransaction!]!
+    id: String!
+    limit: Float
+    membership: [BudgetMembership!]!
+    merchants: [Merchant!]!
+    name: String!
+    transactions: [Transaction!]!
+}
+
+type BudgetMembership {
+    accessLevel: String!
+    budget: Budget!
+    user: User!
+}
+
+type Category {
+    color: String!
+    cycleTransactions: [CycleTransaction!]!
+    iconUrl: String!
+    id: String!
+    limit: Float
+    name: String!
+    ownerBudget: Budget
+    ownerUser: User
+    transactions: [Transaction!]!
+    type: Float!
+}
+
+type CycleTransaction {
+    account: Account!
+    amount: Float
+    budget: Budget
+    category: Category!
+    creator: User
+    date: String!
+    description: String
+    id: String!
+    merchant: Merchant
+    name: String
+    period: Float!
+}
+
+type Debt {
+    balance: Float!
+    color: String!
+    currency: String!
+    description: String
+    endDate: String!
+    iconUrl: String!
+    id: String!
+    interestRate: Float
+    name: String!
+    owner: User!
+}
+
+type Merchant {
+    cycleTransactions: [CycleTransaction!]!
+    id: String!
+    name: String!
+    ownerBudget: Budget
+    ownerUser: User
+    transactions: [Transaction!]!
+}
+
+type Mutation {
+    addBudgetMember(options: AddBudgetMemberInput!): Boolean!
+    createAccount(options: NewAccountInput!): Account!
+    createBudget(options: NewBudgetInput!): Budget!
+    createCategory(options: NewCategoryInput!): Category!
+    createCycleTransaction(options: NewCycleTransactionInput!): CycleTransaction!
+    createDebt(options: NewDebtInput!): Debt!
+    createMerchant(options: NewMerchantInput!): Merchant!
+    createNotification(options: NewNotificationInput!): Notification!
+    createPurchase(options: NewPurchaseInput!): Purchase!
+    createTransaction(options: NewTransactionInput!): Transaction!
+    deleteAccount(options: AccountInput!): Account!
+    deleteBudget(options: BudgetInput!): Budget!
+    deleteCategory(options: CategoryInput!): Category!
+    deleteCycleTransaction(options: CycleTransactionInput!): CycleTransaction!
+    deleteDebt(options: DebtInput!): Debt!
+    deleteMerchant(options: MerchantInput!): Merchant!
+    deleteNotification(options: NotificationInput!): Notification!
+    deletePurchase(options: PurchaseInput!): Purchase!
+    deleteTransaction(options: TransactionInput!): Transaction!
+    deleteUser: User!
+    register(options: UsernamePasswordInput!): User!
+    removeBudgetMember(options: RemoveBudgetMemberInput!): Boolean!
+    revokeToken: Boolean!
+    updateAccount(options: UpdateAccountInput!): Account!
+    updateBudget(options: UpdateBudgetInput!): Budget!
+    updateCategory(options: UpdateCategoryInput!): Category!
+    updateCycleTransaction(options: UpdateCycleTransactionInput!): CycleTransaction!
+    updateDebt(options: UpdateDebtInput!): Debt!
+    updateMerchant(options: UpdateMerchantInput!): Merchant!
+    updateNotification(options: UpdateNotificationInput!): Notification!
+    updatePurchase(options: UpdatePurchaseInput!): Purchase!
+    updateTransaction(options: UpdateTransactionInput!): Transaction!
+    updateUser(options: UpdateUserInput!): User!
+}
+
+type Notification {
+    action: String
+    id: String!
+    read: String!
+    text: String!
+    time: String!
+    user: User!
+}
+
+type Plan {
+    id: String!
+    name: String!
+    price: Float!
+    purchases: Purchase!
+}
+
+type Purchase {
+    currency: String!
+    endDate: String!
+    id: String!
+    name: String!
+    plan: Plan!
+    price: String!
+    startDate: String!
+    user: User!
+}
+
+type Query {
+    account(options: AccountInput!): Account!
+    budget(options: BudgetInput!): Budget!
+    category(options: CategoryInput!): Category!
+    cycleTransaction(options: CycleTransactionInput!): CycleTransaction!
+    debt(options: DebtInput!): Debt!
+    login(options: UserInput!): User!
+    merchant(options: MerchantInput!): Merchant!
+    notification(options: NotificationInput!): Notification!
+    purchase(options: PurchaseInput!): Purchase!
+    transaction(options: TransactionInput!): Transaction!
+    user: User!
+}
+
+type Transaction {
+    account: Account!
+    amount: Float!
+    budget: Budget
+    category: Category!
+    creator: User
+    description: String
+    id: String!
+    merchant: Merchant
+    name: String
+    time: String!
+}
+
+type User {
+    accounts: [Account!]!
+    birthDate: String!
+    budgetMembership: [BudgetMembership!]!
+    categories: [Category!]!
+    country: String
+    cycleTransactions: [CycleTransaction!]!
+    debts: [Debt!]!
+    email: String!
+    id: String!
+    merchants: [Merchant!]!
+    name: String!
+    notifications: [Notification!]!
+    photoUrl: String
+    purchases: [Purchase!]!
+    transactions: [Transaction!]!
+    updatePhotoUrl: String
+}
+
+input AccountInput {
+    id: String!
+}
+
+input AddBudgetMemberInput {
+    accessLevel: String
+    budgetId: String!
+    email: String!
+}
+
+input BudgetInput {
+    id: String!
+}
+
+input CategoryInput {
+    id: String!
+}
+
+input CycleTransactionInput {
+    id: String!
+}
+
+input DebtInput {
+    id: String!
+}
+
+input MerchantInput {
+    id: String!
+}
+
+input NewAccountInput {
+    balance: Float!
+    color: String!
+    currency: String!
+    description: String
+    icon: String!
+    name: String!
+    type: Float!
+}
+
+input NewBudgetInput {
+    limit: Float
+    name: String!
+}
+
+input NewCategoryInput {
+    color: String!
+    icon: String!
+    limit: Float
+    name: String!
+    ownerBudget: String
+    type: Float!
+}
+
+input NewCycleTransactionInput {
+    accountId: String
+    amount: Float!
+    categoryId: String!
+    date: String!
+    description: String
+    name: String
+    period: Float!
+}
+
+input NewDebtInput {
+    balance: Float!
+    color: String!
+    currency: String!
+    description: String
+    endDate: String!
+    icon: String!
+    interestRate: Float
+    name: String!
+}
+
+input NewMerchantInput {
+    name: String!
+}
+
+input NewNotificationInput {
+    action: String
+    read: String!
+    text: String!
+    time: String!
+}
+
+input NewPurchaseInput {
+    currency: String!
+    endDate: String!
+    name: String!
+    planId: String!
+    price: String!
+    startDate: String!
+}
+
+input NewTransactionInput {
+    accountId: String!
+    amount: Float!
+    categoryId: String!
+    description: String
+    name: String
+    time: String!
+}
+
+input NotificationInput {
+    id: String!
+}
+
+input PurchaseInput {
+    id: String!
+}
+
+input RemoveBudgetMemberInput {
+    budgetId: String!
+    userId: String!
+}
+
+input TransactionInput {
+    id: String!
+}
+
+input UpdateAccountInput {
+    balance: Float
+    billingDate: String
+    billingPeriod: Float
+    color: String
+    currency: String
+    description: String
+    icon: String
+    id: String!
+    interestRate: Float
+    name: String
+    owner: String
+    type: Float
+}
+
+input UpdateBudgetInput {
+    id: String!
+    limit: Float
+    name: String
+}
+
+input UpdateCategoryInput {
+    color: String
+    icon: String
+    id: String!
+    limit: Float
+    name: String
+    type: Float
+}
+
+input UpdateCycleTransactionInput {
+    accountId: String
+    amount: Float
+    budgetId: String
+    categoryId: String
+    date: String
+    description: String
+    id: String!
+    merchantId: String
+    name: String
+    period: Float
+}
+
+input UpdateDebtInput {
+    balance: Float
+    color: String
+    currency: String
+    description: String
+    icon: String
+    id: String!
+    interestRate: Float
+    name: String
+}
+
+input UpdateMerchantInput {
+    id: String!
+    name: String
+}
+
+input UpdateNotificationInput {
+    action: String
+    id: String!
+    read: String
+    text: String
+    time: String
+}
+
+input UpdatePurchaseInput {
+    currency: String
+    endDate: String
+    id: String!
+    name: String
+    planId: String
+    price: String
+    startDate: String
+}
+
+input UpdateTransactionInput {
+    accountId: String
+    amount: Float
+    budgetId: String
+    categoryId: String
+    description: String
+    id: String!
+    merchantId: String
+    name: String
+    time: String
+}
+
+input UpdateUserInput {
+    birthDate: String
+    country: String
+    email: String
+    name: String
+    password: String
+    "filename with extension to upload"
+    photo: String
+}
+
+input UserInput {
+    email: String!
+    password: String!
+}
+
+input UsernamePasswordInput {
+    birthDate: String!
+    email: String!
+    name: String!
+    password: String!
+}

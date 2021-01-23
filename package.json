@@ -15,7 +15,7 @@
     "deploy:ci": "serverless deploy --stage staging || true",
     "migration:run": "typeorm migration:run",
     "pretest:e2e": "npm run test:db && tsc && typeorm migration:run -f test/ormconfig-test",
-    "test:e2e": "jest test/",
+    "test:e2e": "jest test/ --runInBand --forceExit",
     "test:unit": "jest src/",
     "test:db": "docker-compose -f test/docker-compose.yml up -d --build && ./test/wait-for-db.sh",
     "test": "npm run test:unit && npm run test:e2e",
