@@ -15,7 +15,7 @@
     "pretest:e2e": "npm run test:db && typeorm migration:run -f test/ormconfig-test",
     "test:e2e": "jest test/",
     "test:unit": "jest src/",
-    "test:db": "docker-compose -f test/docker-compose-test.yml up -d --build",
+    "test:db": "docker-compose -f test/docker-compose.yml up -d --build && ./test/wait-for-db.sh",
     "test": "npm run test:unit && npm run test:e2e",
     "serve": "serverless offline --allowCache",
     "debug": "SLS_DEBUG=* serverless offline --allowCache",
