@@ -23,7 +23,9 @@ export class CategoryResolver {
     try {
       category = await Category.findOne({
         where: { id: options.id },
-        relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+        relations: [
+          ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+        ],
       });
     } catch (e) {
       throw new ApolloError(e);
@@ -49,7 +51,7 @@ export class CategoryResolver {
     @Ctx() { userId }: Context
   ): Promise<NoMethods<Category>> {
     let category;
-    let hasBudget = false;
+    const owner = { budget: undefined, user: undefined };
     if (ownerBudget !== undefined) {
       const membership = await BudgetMembership.findOne({
         user: { id: userId },
@@ -60,10 +62,12 @@ export class CategoryResolver {
         membership.accessLevel === AccessLevel.EDITOR ||
         membership.accessLevel === AccessLevel.OWNER
       ) {
-        hasBudget = true;
+        owner.budget = await Budget.findOne({ where: { id: ownerBudget } });
       } else {
         throw new ApolloError("You must be EDITOR or OWNER to add a category", "FORBIDDEN");
       }
+    } else {
+      owner.user = await User.findOne({ where: { id: userId } });
     }
 
     try {
@@ -72,8 +76,8 @@ export class CategoryResolver {
         limit,
         color,
         iconUrl: icon,
-        ownerBudget: hasBudget && (await Budget.findOne({ where: { id: ownerBudget } })),
-        ownerUser: !hasBudget && (await User.findOne({ where: { id: userId } })),
+        ownerBudget: owner.budget,
+        ownerUser: owner.user,
         type,
       }).save();
     } catch (err) {
@@ -92,7 +96,9 @@ export class CategoryResolver {
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+      ],
     });
     // TODO: create abstract logic for that and make it more efficient
     const budgetMemberships = await BudgetMembership.find({
@@ -132,7 +138,9 @@ export class CategoryResolver {
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: { category: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+      ],
     });
     const budgetMemberships = await BudgetMembership.find({
       where: {
