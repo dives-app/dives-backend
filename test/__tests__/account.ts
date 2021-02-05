@@ -54,7 +54,7 @@ describe("Account", () => {
     );
   });
 
-  test("Creates account", async () => {
+  test("is created", async () => {
     expect.assertions(1);
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
@@ -70,7 +70,7 @@ describe("Account", () => {
     });
   });
 
-  test("Gets account", async () => {
+  test("is fetched", async () => {
     expect.assertions(1);
     const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
@@ -100,7 +100,7 @@ describe("Account", () => {
     });
   });
 
-  test("Updates account", async () => {
+  test("is updated", async () => {
     expect.assertions(1);
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
@@ -149,7 +149,7 @@ describe("Account", () => {
     });
   });
 
-  test("Deletes account", async () => {
+  test("is deleted", async () => {
     expect.assertions(1);
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });

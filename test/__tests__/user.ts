@@ -33,7 +33,7 @@ describe("User", () => {
     );
   });
 
-  test("Creates user", async () => {
+  test("is created", async () => {
     expect.assertions(1);
     const { mutate } = createTestClient(server.server);
     const res = await mutate({ mutation: CREATE_USER });
@@ -45,7 +45,7 @@ describe("User", () => {
     });
   });
 
-  test("Gets user", async () => {
+  test("is fetched", async () => {
     expect.assertions(1);
     const GET_USER = gql`
       query {
@@ -69,7 +69,7 @@ describe("User", () => {
     });
   });
 
-  test("Updates user", async () => {
+  test("is updated", async () => {
     expect.assertions(1);
     const UPDATE_USER = gql`
       mutation {
@@ -102,7 +102,7 @@ describe("User", () => {
     });
   });
 
-  test("Deletes user", async () => {
+  test("is deleted", async () => {
     expect.assertions(1);
     const DELETE_USER = gql`
       mutation {
