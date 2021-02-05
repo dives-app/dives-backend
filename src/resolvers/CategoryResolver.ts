@@ -137,11 +137,14 @@ export class CategoryResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
-      where: { category: id },
+      where: { id },
       relations: [
         ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
       ],
     });
+    if (category.ownerUser.id === userId) {
+      return { ...(await category.remove()), id };
+    }
     const budgetMemberships = await BudgetMembership.find({
       where: {
         user: userId,
@@ -156,7 +159,7 @@ export class CategoryResolver {
       .find(membership => {
         return category.ownerBudget.id === membership.budget.id;
       });
-    if (category.ownerUser.id !== userId && !budgetCategory) {
+    if (!budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
     return { ...(await category.remove()), id };

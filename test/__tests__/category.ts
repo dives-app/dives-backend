@@ -3,7 +3,7 @@ import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
 
-describe("Account", () => {
+describe("Category", () => {
   let server;
   const CREATE_USER = gql`
     mutation {
@@ -22,24 +22,16 @@ describe("Account", () => {
       }
     }
   `;
-  const CREATE_ACCOUNT = gql`
+  const CREATE_CATEGORY = gql`
     mutation {
-      createAccount(
-        options: {
-          name: "accountName"
-          balance: 10.00
-          color: "#ffffff"
-          currency: "USD"
-          icon: "PKO"
-          type: 1
-        }
+      createCategory(
+        options: { name: "categoryName", color: "#ffffff", icon: "PKO", type: 1, limit: 1000 }
       ) {
         id
         name
-        balance
         color
-        currency
         type
+        limit
       }
     }
   `;
@@ -56,14 +48,13 @@ describe("Account", () => {
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
-    const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
-    expect(createAccountResponse.data.createAccount).toEqual({
+    const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
+    expect(createCategoryResponse.data.createCategory).toEqual({
       id: expect.any(String),
-      name: "accountName",
-      balance: 10.0,
+      name: "categoryName",
       color: "#ffffff",
-      currency: "USD",
       type: 1,
+      limit: 1000,
     });
   });
 
@@ -72,28 +63,26 @@ describe("Account", () => {
     const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
-    const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
-    const accountId = createAccountResponse.data.createAccount.id;
-    const GET_ACCOUNT = gql`
+    const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
+    const categoryId = createCategoryResponse.data.createCategory.id;
+    const GET_CATEGORY = gql`
         query {
-            account(options: { id: "${accountId}" }) {
+            category(options: { id: "${categoryId}" }) {
                 id
                 name
-                balance
                 color
-                currency
                 type
+                limit
             }
         }
     `;
-    const { data } = await query({ query: GET_ACCOUNT });
-    expect(data.account).toEqual({
-      id: accountId,
-      name: "accountName",
-      balance: 10.0,
+    const { data } = await query({ query: GET_CATEGORY });
+    expect(data.category).toEqual({
+      id: categoryId,
+      name: "categoryName",
       color: "#ffffff",
-      currency: "USD",
       type: 1,
+      limit: 1000,
     });
   });
 
@@ -102,47 +91,33 @@ describe("Account", () => {
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
-    const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
-    const accountId = createAccountResponse.data.createAccount.id;
-    const UPDATE_ACCOUNT = gql`
+    const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
+    const categoryId = createCategoryResponse.data.createCategory.id;
+    const UPDATE_CATEGORY = gql`
         mutation {
-            updateAccount(options: {
-                id: "${accountId}",
-                name:"updatedAccountName",
+            updateCategory(options: {
+                id: "${categoryId}",
+                name:"updatedCategoryName",
                 type: 2,
-                currency: "PLN",
-                balance: 20.20,
                 color: "#000000",
-                billingDate: "10-02-2021",
-                billingPeriod: 2,
-                description: "desc",
-                interestRate: 3
+                limit: 2.99
+                icon: "FOOD"
             }) {
                 id
                 name
                 type
-                currency
-                balance
                 color
-                billingDate
-                billingPeriod
-                description
-                interestRate
+                limit
             }
         }
     `;
-    const { data } = await mutate({ mutation: UPDATE_ACCOUNT });
-    expect(data.updateAccount).toEqual({
-      id: accountId,
-      name: "updatedAccountName",
+    const { data } = await mutate({ mutation: UPDATE_CATEGORY });
+    expect(data.updateCategory).toEqual({
+      id: categoryId,
+      name: "updatedCategoryName",
       type: 2,
-      currency: "PLN",
-      balance: 20.2,
       color: "#000000",
-      billingDate: "10-02-2021",
-      billingPeriod: 2,
-      description: "desc",
-      interestRate: 3,
+      limit: 2.99,
     });
   });
 
@@ -151,28 +126,26 @@ describe("Account", () => {
     const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
-    const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
-    const accountId = createAccountResponse.data.createAccount.id;
-    const DELETE_ACCOUNT = gql`
+    const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
+    const categoryId = createCategoryResponse.data.createCategory.id;
+    const DELETE_CATEGORY = gql`
         mutation {
-            deleteAccount(options: {id: "${accountId}"}) {
+            deleteCategory(options: {id: "${categoryId}"}) {
                 id
                 name
-                balance
                 color
-                currency
                 type
+                limit
             }
         }
     `;
-    const { data } = await mutate({ mutation: DELETE_ACCOUNT });
-    expect(data.deleteAccount).toEqual({
-      id: accountId,
-      name: "accountName",
-      balance: 10.0,
+    const { data } = await mutate({ mutation: DELETE_CATEGORY });
+    expect(data.deleteCategory).toEqual({
+      id: categoryId,
+      name: "categoryName",
       color: "#ffffff",
-      currency: "USD",
       type: 1,
+      limit: 1000,
     });
   });
 });

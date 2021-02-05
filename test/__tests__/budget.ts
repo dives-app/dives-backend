@@ -1,7 +1,7 @@
 import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
-import { getManager } from "typeorm";
+import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("Budget", () => {
   let server;
@@ -36,10 +36,7 @@ describe("Budget", () => {
     server.init();
   });
   afterEach(async () => {
-    // Delete all DB data
-    await getManager().query(
-      `TRUNCATE "account", "budget", "budget_membership", "category", "cycle_transaction", "debt", "merchant", "notification", "plan", "purchase", "transaction", "user" CASCADE;`
-    );
+    await truncateDatabase();
   });
 
   test("is created", async () => {
