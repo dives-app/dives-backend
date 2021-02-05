@@ -30,13 +30,67 @@ import { Transaction } from "../src/entities/Transaction";
 import { User } from "../src/entities/User";
 import { ApolloContext, Context as MyApolloContext } from "../types";
 import { config } from "env-yaml";
+import { createTestClient } from "apollo-server-testing";
 
 config({ path: "test/env-test.yml" });
 const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
 
 export default class TestServer {
   public loggedUserId: string;
-  public server: ApolloServer;
+  public serverInstance: ApolloServer;
+
+  constructor() {
+    //! This code is important (be careful trying to remove it).
+    //! `global.schema` name is required because of some deep graphql schema shit
+    if (!(global as any).schema) {
+      (global as any).schema = buildSchemaSync({
+        resolvers: [
+          AccountResolver,
+          BudgetResolver,
+          CategoryResolver,
+          CycleTransactionResolver,
+          DebtResolver,
+          MerchantResolver,
+          NotificationResolver,
+          PurchaseResolver,
+          TransactionResolver,
+          UserResolver,
+        ],
+        validate: true,
+        authChecker,
+      });
+    }
+    const schema = (global as any).schema;
+
+    let S3 = new AWS.S3({
+      s3ForcePathStyle: true,
+      accessKeyId: "S3RVER",
+      secretAccessKey: "S3RVER",
+      endpoint: "http://localhost:4569",
+    });
+
+    this.serverInstance = new ApolloServer({
+      schema,
+      plugins: [httpHeadersPlugin],
+      context: async ({ event, context }: ApolloContext): Promise<MyApolloContext> => {
+        const connection = await this.getConnection();
+
+        return {
+          connection,
+          s3: S3,
+          event,
+          context,
+          userId: this.loggedUserId,
+          setCookies: [],
+          setHeaders: [],
+        };
+      },
+    });
+  }
+
+  createTestClient() {
+    return createTestClient(this.serverInstance);
+  }
 
   async getConnection() {
     const manager = getConnectionManager();
@@ -74,54 +128,5 @@ export default class TestServer {
       await connection.connect();
     }
     return connection;
-  }
-
-  init() {
-    //! This code is important (be careful trying to remove it).
-    //! `global.schema` name is required because of some deep graphql schema shit
-    if (!(global as any).schema) {
-      (global as any).schema = buildSchemaSync({
-        resolvers: [
-          AccountResolver,
-          BudgetResolver,
-          CategoryResolver,
-          CycleTransactionResolver,
-          DebtResolver,
-          MerchantResolver,
-          NotificationResolver,
-          PurchaseResolver,
-          TransactionResolver,
-          UserResolver,
-        ],
-        validate: true,
-        authChecker,
-      });
-    }
-    const schema = (global as any).schema;
-
-    let S3 = new AWS.S3({
-      s3ForcePathStyle: true,
-      accessKeyId: "S3RVER",
-      secretAccessKey: "S3RVER",
-      endpoint: "http://localhost:4569",
-    });
-
-    this.server = new ApolloServer({
-      schema,
-      plugins: [httpHeadersPlugin],
-      context: async ({ event, context }: ApolloContext): Promise<MyApolloContext> => {
-        const connection = await this.getConnection();
-
-        return {
-          connection,
-          s3: S3,
-          event,
-          context,
-          userId: this.loggedUserId,
-          setCookies: [],
-          setHeaders: [],
-        };
-      },
-    });
   }
 }

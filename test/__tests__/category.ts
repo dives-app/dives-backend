@@ -1,10 +1,8 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("Category", () => {
-  let server;
   const CREATE_USER = gql`
     mutation {
       register(
@@ -35,9 +33,11 @@ describe("Category", () => {
       }
     }
   `;
+  let server, query, mutate;
   beforeEach(async () => {
     server = new TestServer();
-    server.init();
+    query = server.createTestClient().query;
+    mutate = server.createTestClient().mutate;
   });
   afterEach(async () => {
     await truncateDatabase();
@@ -45,7 +45,6 @@ describe("Category", () => {
 
   test("is created", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
@@ -60,7 +59,6 @@ describe("Category", () => {
 
   test("is fetched", async () => {
     expect.assertions(1);
-    const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
@@ -88,7 +86,6 @@ describe("Category", () => {
 
   test("is updated", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });
@@ -123,7 +120,6 @@ describe("Category", () => {
 
   test("is deleted", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createCategoryResponse = await mutate({ mutation: CREATE_CATEGORY });

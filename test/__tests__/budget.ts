@@ -1,10 +1,8 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("Budget", () => {
-  let server;
   const CREATE_USER = gql`
     mutation {
       register(
@@ -31,9 +29,11 @@ describe("Budget", () => {
       }
     }
   `;
+  let server, query, mutate;
   beforeEach(async () => {
     server = new TestServer();
-    server.init();
+    query = server.createTestClient().query;
+    mutate = server.createTestClient().mutate;
   });
   afterEach(async () => {
     await truncateDatabase();
@@ -41,7 +41,6 @@ describe("Budget", () => {
 
   test("is created", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createBudgetResponse = await mutate({ mutation: CREATE_BUDGET });
@@ -54,7 +53,6 @@ describe("Budget", () => {
 
   test("is fetched", async () => {
     expect.assertions(1);
-    const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createBudgetResponse = await mutate({ mutation: CREATE_BUDGET });
@@ -78,7 +76,6 @@ describe("Budget", () => {
 
   test("is updated", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createBudgetResponse = await mutate({ mutation: CREATE_BUDGET });
@@ -106,7 +103,6 @@ describe("Budget", () => {
 
   test("is deleted", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createBudgetResponse = await mutate({ mutation: CREATE_BUDGET });
@@ -130,7 +126,6 @@ describe("Budget", () => {
 
   test("member is added", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     let CREATE_ANOTHER_USER = gql`
@@ -163,7 +158,6 @@ describe("Budget", () => {
 
   test("member is removed", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     let CREATE_ANOTHER_USER = gql`

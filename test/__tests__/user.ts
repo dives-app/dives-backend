@@ -1,10 +1,8 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("User", () => {
-  let server;
   const CREATE_USER = gql`
     mutation {
       register(
@@ -22,9 +20,11 @@ describe("User", () => {
       }
     }
   `;
+  let server, query, mutate;
   beforeEach(async () => {
     server = new TestServer();
-    server.init();
+    query = server.createTestClient().query;
+    mutate = server.createTestClient().mutate;
   });
   afterEach(async () => {
     await truncateDatabase();
@@ -32,7 +32,6 @@ describe("User", () => {
 
   test("is created", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const res = await mutate({ mutation: CREATE_USER });
     expect(res.data.register).toEqual({
       id: expect.any(String),
@@ -54,7 +53,6 @@ describe("User", () => {
         }
       }
     `;
-    const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const { data } = await query({ query: GET_USER });
@@ -86,7 +84,6 @@ describe("User", () => {
         }
       }
     `;
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const res = await mutate({ mutation: UPDATE_USER });
@@ -111,7 +108,6 @@ describe("User", () => {
         }
       }
     `;
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const res = await mutate({ mutation: DELETE_USER });
@@ -125,7 +121,6 @@ describe("User", () => {
 
   test("Throws on email collision", async () => {
     expect.assertions(2);
-    const { mutate } = createTestClient(server.server);
     await mutate({ mutation: CREATE_USER });
     const collisionResponse = await mutate({ mutation: CREATE_USER });
     expect(collisionResponse.data).toBeNull();
@@ -148,7 +143,6 @@ describe("User", () => {
         }
       }
     `;
-    const { mutate } = createTestClient(server.server);
     const response = await mutate({ mutation: CREATE_WEAK_USER });
     expect(response.data).toBeNull();
     expect(response.errors[0].extensions.code).toBe("INVALID_PASSWORD");

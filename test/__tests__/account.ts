@@ -1,10 +1,8 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("Account", () => {
-  let server;
   const CREATE_USER = gql`
     mutation {
       register(
@@ -43,9 +41,11 @@ describe("Account", () => {
       }
     }
   `;
+  let server, query, mutate;
   beforeEach(async () => {
     server = new TestServer();
-    server.init();
+    query = server.createTestClient().query;
+    mutate = server.createTestClient().mutate;
   });
   afterEach(async () => {
     await truncateDatabase();
@@ -53,7 +53,6 @@ describe("Account", () => {
 
   test("is created", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
@@ -69,7 +68,6 @@ describe("Account", () => {
 
   test("is fetched", async () => {
     expect.assertions(1);
-    const { mutate, query } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
@@ -99,7 +97,6 @@ describe("Account", () => {
 
   test("is updated", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
@@ -148,7 +145,6 @@ describe("Account", () => {
 
   test("is deleted", async () => {
     expect.assertions(1);
-    const { mutate } = createTestClient(server.server);
     const createUserResponse = await mutate({ mutation: CREATE_USER });
     server.loggedUserId = createUserResponse.data.register.id;
     const createAccountResponse = await mutate({ mutation: CREATE_ACCOUNT });
