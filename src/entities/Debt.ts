@@ -6,7 +6,7 @@ import { User } from "./User";
 @Entity()
 export class Debt extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()

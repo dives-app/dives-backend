@@ -15,7 +15,7 @@ export enum AccountType {
 @Entity()
 export class Account extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()

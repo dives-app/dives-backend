@@ -10,7 +10,7 @@ import { Merchant } from "./Merchant";
 @Entity()
 export class Budget extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()

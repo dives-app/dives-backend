@@ -14,7 +14,7 @@ import { Merchant } from "./Merchant";
 @Entity()
 export class User extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()

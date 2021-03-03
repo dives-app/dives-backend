@@ -15,7 +15,7 @@ export enum CategoryType {
 @Entity()
 export class Category extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
