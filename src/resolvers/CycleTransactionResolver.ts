@@ -27,7 +27,9 @@ export class CycleTransactionResolver {
   ): Promise<NoMethods<CycleTransaction>> {
     const cycleTransaction = await CycleTransaction.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
     });
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
@@ -72,7 +74,8 @@ export class CycleTransactionResolver {
   @Mutation(() => CycleTransaction)
   async updateCycleTransaction(
     @Arg("options") options: UpdateCycleTransactionInput,
-    @Ctx() { userId }: Context
+    @Ctx() { userId }: Context,
+    @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<CycleTransaction>> {
     const {
       amount,
@@ -86,7 +89,12 @@ export class CycleTransactionResolver {
       date,
       period,
     } = options;
-    const cycleTransaction = await CycleTransaction.findOne({ where: { id } });
+    const cycleTransaction = await CycleTransaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
+    });
     if (!cycleTransaction) {
       throw new ApolloError("No cycleTransaction found");
     }
@@ -122,9 +130,15 @@ export class CycleTransactionResolver {
   @Mutation(() => CycleTransaction)
   async deleteCycleTransaction(
     @Arg("options") { id }: CycleTransactionInput,
-    @Ctx() { userId }: Context
+    @Ctx() { userId }: Context,
+    @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<CycleTransaction>> {
-    const cycleTransaction = await CycleTransaction.findOne({ where: { id } });
+    const cycleTransaction = await CycleTransaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
+    });
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
     }
