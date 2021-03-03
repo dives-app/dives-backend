@@ -7,6 +7,7 @@ import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
 import { updateObject } from "../utils/updateObject";
 import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
+import { User } from "../entities/User";
 
 @Resolver(() => Merchant)
 export class MerchantResolver {
@@ -29,11 +30,15 @@ export class MerchantResolver {
 
   @Authorized()
   @Mutation(() => Merchant)
-  async createMerchant(@Arg("options") { name }: NewMerchantInput): Promise<NoMethods<Merchant>> {
+  async createMerchant(
+    @Arg("options") { name }: NewMerchantInput,
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<Merchant>> {
     let merchant;
     try {
       merchant = await Merchant.create({
         name,
+        ownerUser: await User.findOne({ where: { id: userId } }),
       }).save();
     } catch (err) {
       throw new ApolloError(err);
@@ -66,13 +71,20 @@ export class MerchantResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
-      where: { merchant: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      where: { id },
+      relations: [
+        ...new Set([
+          ...getRelationSubfields(info.fieldNodes[0].selectionSet),
+          "ownerBudget",
+          "ownerUser",
+        ]),
+      ],
     });
     const budgetMemberships = await BudgetMembership.find({
       where: {
         user: userId,
       },
+      relations: ["budget"],
     });
     const budgetMerchant = budgetMemberships
       .filter(
@@ -83,7 +95,7 @@ export class MerchantResolver {
       .find(membership => {
         return merchant.ownerBudget.id === membership.budget.id;
       });
-    if (merchant.ownerUser.id !== userId && !budgetMerchant) {
+    if (merchant.ownerUser?.id !== userId && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
     return { ...(await merchant.remove()), id };
