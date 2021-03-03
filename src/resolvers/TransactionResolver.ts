@@ -23,7 +23,9 @@ export class TransactionResolver {
   ): Promise<NoMethods<Transaction>> {
     const transaction = await Transaction.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
     });
     if (!transaction) {
       throw new ApolloError("No transaction found");
@@ -121,9 +123,15 @@ export class TransactionResolver {
   @Mutation(() => Transaction)
   async deleteTransaction(
     @Arg("options") { id }: TransactionInput,
-    @Ctx() { userId }: Context
+    @Ctx() { userId }: Context,
+    @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Transaction>> {
-    const transaction = await Transaction.findOne({ where: { id } });
+    const transaction = await Transaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
+    });
     if (!transaction) {
       throw new ApolloError("No transaction found");
     }
