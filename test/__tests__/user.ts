@@ -1,6 +1,7 @@
 import { gql } from "apollo-server-lambda";
 import TestServer from "../testServer";
 import { truncateDatabase } from "../utils/truncateDatabase";
+import { ApolloServerTestClient } from "apollo-server-testing";
 
 describe("User", () => {
   const CREATE_USER = gql`
@@ -20,11 +21,14 @@ describe("User", () => {
       }
     }
   `;
-  let server, query, mutate;
+  let server: TestServer;
+  let query: ApolloServerTestClient["query"];
+  let mutate: ApolloServerTestClient["mutate"];
   beforeEach(async () => {
     server = new TestServer();
-    query = server.createTestClient().query;
-    mutate = server.createTestClient().mutate;
+    const testClient = server.createTestClient();
+    query = testClient.query;
+    mutate = testClient.mutate;
   });
   afterEach(async () => {
     await truncateDatabase();
