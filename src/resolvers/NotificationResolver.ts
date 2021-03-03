@@ -79,8 +79,8 @@ export class NotificationResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Notification>> {
     const notification = await Notification.findOne({
-      where: { notification: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      where: { id },
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "user"])],
     });
 
     if (notification.user.id !== userId) {
