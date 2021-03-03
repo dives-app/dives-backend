@@ -66,7 +66,6 @@ export class PurchaseResolver {
       name,
       currency,
       endDate,
-      id,
       plan: planId && (await Plan.findOne({ where: { id: planId } })),
       price,
       startDate,
@@ -83,8 +82,8 @@ export class PurchaseResolver {
     @Info() info: GraphQLResolveInfo
   ): Promise<NoMethods<Purchase>> {
     const purchase = await Purchase.findOne({
-      where: { purchase: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      where: { id },
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "user"])],
     });
     if (purchase.user.id !== userId) {
       throw new ApolloError("You don't have access to purchase with that id");

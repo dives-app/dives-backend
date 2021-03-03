@@ -15,7 +15,7 @@ export class NewPurchaseInput {
   @Field()
   endDate: string;
   @Field()
-  price: string;
+  price: number;
   @Field()
   currency: string;
   @Field()
@@ -33,7 +33,7 @@ export class UpdatePurchaseInput {
   @Field({ nullable: true })
   endDate?: string;
   @Field({ nullable: true })
-  price?: string;
+  price?: number;
   @Field({ nullable: true })
   currency?: string;
   @Field({ nullable: true })

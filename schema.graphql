@@ -146,7 +146,7 @@ type Purchase {
     id: String!
     name: String!
     plan: Plan!
-    price: String!
+    price: Float!
     startDate: String!
     user: User!
 }
@@ -288,7 +288,7 @@ input NewPurchaseInput {
     endDate: String!
     name: String!
     planId: String!
-    price: String!
+    price: Float!
     startDate: String!
 }
 
@@ -391,7 +391,7 @@ input UpdatePurchaseInput {
     id: String!
     name: String
     planId: String
-    price: String
+    price: Float
     startDate: String
 }
 

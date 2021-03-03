@@ -25,7 +25,7 @@ export class Purchase extends BaseEntity {
       from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
     },
   })
-  price: string;
+  price: number;
 
   @Field()
   @Column("varchar")
