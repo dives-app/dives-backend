@@ -3,10 +3,10 @@ import "reflect-metadata";
 import { Connection, createConnection, getConnectionManager } from "typeorm";
 import { ApolloServer } from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
-import { verify } from "jsonwebtoken";
-import { ApolloContext, Context as MyApolloContext, TokenData } from "./types";
 import { buildSchemaSync } from "type-graphql";
 import { APIGatewayEvent, Context } from "aws-lambda";
+import AWS from "aws-sdk";
+import { ApolloContext, Context as MyApolloContext } from "./types";
 import { UserResolver } from "./src/resolvers/UserResolver";
 import { BudgetResolver } from "./src/resolvers/BudgetResolver";
 import { TransactionResolver } from "./src/resolvers/TransactionResolver";
@@ -29,8 +29,10 @@ import { CycleTransactionResolver } from "./src/resolvers/CycleTransactionResolv
 import { MerchantResolver } from "./src/resolvers/MerchantResolver";
 import { NotificationResolver } from "./src/resolvers/NotificationResolver";
 import { PurchaseResolver } from "./src/resolvers/PurchaseResolver";
+import { getCookie } from "./src/utils/getCookie";
+import { authChecker } from "./src/utils/authChecker";
 
-const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
+const { STAGE, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME } = process.env;
 
 //! This code is important (be careful trying to remove it).
 //! `global.schema` name is required because of some deep graphql schema shit
@@ -49,12 +51,14 @@ if (!(global as any).schema) {
       UserResolver,
     ],
     validate: true,
+    authChecker,
   });
 }
 const schema = (global as any).schema;
 
 /**
- * Returns either old or new connection to the database
+ * Get database connection
+ * @returns either old or new connection to the database
  */
 const getConnection = async () => {
   const manager = getConnectionManager();
@@ -93,25 +97,46 @@ const getConnection = async () => {
   }
   return connection;
 };
+let S3;
+if (STAGE === "dev") {
+  S3 = new AWS.S3({
+    s3ForcePathStyle: true,
+    accessKeyId: "S3RVER",
+    secretAccessKey: "S3RVER",
+    endpoint: "http://localhost:4569",
+  });
+} else {
+  S3 = new AWS.S3({
+    s3ForcePathStyle: true,
+  });
+}
 
 const server = new ApolloServer({
   schema,
   plugins: [httpHeadersPlugin],
-  context: async ({
-    event,
-    context,
-  }: ApolloContext): Promise<MyApolloContext> => {
+  playground: {
+    endpoint: `/${STAGE}/graphql`,
+    settings: {
+      "request.credentials": "include",
+    },
+  },
+  context: async ({ event, context }: ApolloContext): Promise<MyApolloContext> => {
     const connection = await getConnection();
-    let user: TokenData = { email: null, id: null };
-    try {
-      const jwt = event.headers.Cookie.match(/jwt=.*?(?=;|$)/m)[0].slice(4);
-      user = verify(jwt, process.env.JWT_SECRET) as TokenData;
-    } catch {}
+    let userId = null;
+    const token = getCookie(event, "token");
+    if (token !== undefined) {
+      try {
+        const user = await User.findOne({ where: { token } });
+        userId = user?.id;
+      } catch {}
+    }
+
     return {
       connection,
+      s3: S3,
       event,
       context,
-      user,
+      userId,
       setCookies: [],
       setHeaders: [],
     };
@@ -128,7 +153,6 @@ const handler = server.createHandler({
 const runHandler = (event, context, handler) =>
   new Promise((resolve, reject) => {
     const callback = (error, body) => (error ? reject(error) : resolve(body));
-
     handler(event, context, callback);
   });
 

@@ -140,9 +140,7 @@ export class initial1604829618416 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "notification" DROP CONSTRAINT "FK_1ced25315eb974b73391fb1c81b"`
     );
-    await queryRunner.query(
-      `ALTER TABLE "debt" DROP CONSTRAINT "FK_edded84017256ec78972458c3a3"`
-    );
+    await queryRunner.query(`ALTER TABLE "debt" DROP CONSTRAINT "FK_edded84017256ec78972458c3a3"`);
     await queryRunner.query(
       `ALTER TABLE "budget_membership" DROP CONSTRAINT "FK_1566b71ab838d920cfc9b00c46f"`
     );

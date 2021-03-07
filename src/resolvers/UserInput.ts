@@ -32,6 +32,6 @@ export class UpdateUserInput {
   country: string;
   @Field({ nullable: true })
   password: string;
-  @Field({ nullable: true })
+  @Field({ nullable: true, description: "filename with extension to upload" })
   photo: string;
 }

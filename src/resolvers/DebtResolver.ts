@@ -1,5 +1,5 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
-import { Context } from "../../types";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Context, NoMethods } from "../../types";
 import { ApolloError } from "apollo-server-errors";
 import { NewDebtInput } from "./DebtInput";
 import { User } from "../entities/User";
@@ -11,40 +11,35 @@ import { updateObject } from "../utils/updateObject";
 
 @Resolver(() => Debt)
 export class DebtResolver {
+  @Authorized()
   @Query(() => Debt)
   async debt(
     @Arg("options") { id }: DebtInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
+  ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])
+      ]
     });
     if (!debt) {
       throw new ApolloError("No debt found");
     }
-    if (debt.owner.id !== user.id) {
+    if (debt.owner.id !== userId) {
       throw new ApolloError("No access to this debt");
     }
     return debt;
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async createDebt(
     @Arg("options") options: NewDebtInput,
-    @Ctx() { user }: Context
-  ): Promise<Debt> {
-    const {
-      name,
-      balance,
-      color,
-      currency,
-      description,
-      icon,
-      interestRate,
-      endDate,
-    } = options;
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<Debt>> {
+    const { name, balance, color, currency, description, icon, interestRate, endDate } = options;
     try {
       return Debt.create({
         name,
@@ -55,38 +50,31 @@ export class DebtResolver {
         description,
         interestRate,
         endDate,
-        owner: await User.findOne({ where: { id: user.id } }),
+        owner: await User.findOne({ where: { id: userId } })
       }).save();
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async updateDebt(
     @Arg("options") options: UpdateDebtInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
-    const {
-      id,
-      name,
-      currency,
-      description,
-      balance,
-      icon,
-      color,
-      interestRate,
-    } = options;
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Debt>> {
+    const { id, name, currency, description, balance, icon, color, interestRate } = options;
     const debt = await Debt.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])
+      ]
     });
     if (!debt) {
       throw new ApolloError("There is no debt with that id");
     }
-    if (debt.owner.id !== user.id) {
+    if (debt.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this debt");
     }
     try {
@@ -97,31 +85,31 @@ export class DebtResolver {
         balance,
         iconUrl: icon,
         color,
-        interestRate,
+        interestRate
       });
-      return debt.save();
+      return { ...(await debt.save()), id };
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => Debt)
   async deleteDebt(
     @Arg("options") { id }: DebtInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Debt> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])]
     });
     if (!debt) {
       throw new ApolloError("There is no debt with that id");
     }
-    if (debt.owner.id !== user.id) {
+    if (debt.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this debt");
     }
-    return debt.remove();
+    return { ...(await debt.remove()), id };
   }
 }

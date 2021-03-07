@@ -1,4 +1,5 @@
 SERVER_HOST: localhost
+S3_BUCKET: dives-backend-data
 DB_HOST: db
 DB_PORT: 5432
 DB_USERNAME: admin

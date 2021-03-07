@@ -1,6 +1,6 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { CycleTransaction } from "../entities/CycleTransaction";
-import { Context } from "../../types";
+import { Context, NoMethods } from "../../types";
 import { ApolloError } from "apollo-server-errors";
 import {
   CycleTransactionInput,
@@ -18,24 +18,27 @@ import { getRelationSubfields } from "../utils/getRelationSubfields";
 
 @Resolver(() => CycleTransaction)
 export class CycleTransactionResolver {
+  @Authorized()
   @Query(() => CycleTransaction)
   async cycleTransaction(
     @Arg("options") { id }: CycleTransactionInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<CycleTransaction> {
+  ): Promise<NoMethods<CycleTransaction>> {
     const cycleTransaction = await CycleTransaction.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
     });
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
     }
     const membership = await BudgetMembership.findOne({
-      where: { budget: cycleTransaction.budget, user: user },
+      where: { budget: cycleTransaction.budget, user: { id: userId } },
     });
     if (
-      cycleTransaction.creator.id !== user.id &&
+      cycleTransaction.creator.id !== userId &&
       membership &&
       membership.accessLevel !== AccessLevel.OBSERVER
     ) {
@@ -44,20 +47,13 @@ export class CycleTransactionResolver {
     return cycleTransaction;
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async createCycleTransaction(
     @Arg("options") options: NewCycleTransactionInput,
-    @Ctx() { user }: Context
-  ): Promise<CycleTransaction> {
-    const {
-      accountId,
-      amount,
-      categoryId,
-      date,
-      description,
-      name,
-      period,
-    } = options;
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<CycleTransaction>> {
+    const { accountId, amount, categoryId, date, description, name, period } = options;
     try {
       return CycleTransaction.create({
         name,
@@ -67,18 +63,20 @@ export class CycleTransactionResolver {
         date,
         period,
         description,
-        creator: user,
+        creator: { id: userId },
       }).save();
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async updateCycleTransaction(
     @Arg("options") options: UpdateCycleTransactionInput,
-    @Ctx() { user }: Context
-  ): Promise<CycleTransaction> {
+    @Ctx() { userId }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<NoMethods<CycleTransaction>> {
     const {
       amount,
       description,
@@ -91,15 +89,20 @@ export class CycleTransactionResolver {
       date,
       period,
     } = options;
-    const cycleTransaction = await CycleTransaction.findOne({ where: { id } });
+    const cycleTransaction = await CycleTransaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
+    });
     if (!cycleTransaction) {
       throw new ApolloError("No cycleTransaction found");
     }
     const membership = await BudgetMembership.findOne({
-      where: { budget: cycleTransaction.budget, user: user },
+      where: { budget: cycleTransaction.budget, user: { id: userId } },
     });
     if (
-      cycleTransaction.creator.id !== user.id &&
+      cycleTransaction.creator.id !== userId &&
       membership &&
       membership.accessLevel !== AccessLevel.OBSERVER
     ) {
@@ -117,31 +120,38 @@ export class CycleTransactionResolver {
         budget: await Budget.findOne({ where: { id: budgetId } }),
         merchant: await Merchant.findOne({ where: { id: merchantId } }),
       });
-      return cycleTransaction.save();
+      return { ...(await cycleTransaction.save()), id };
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => CycleTransaction)
   async deleteCycleTransaction(
     @Arg("options") { id }: CycleTransactionInput,
-    @Ctx() { user }: Context
-  ): Promise<CycleTransaction> {
-    const cycleTransaction = await CycleTransaction.findOne({ where: { id } });
+    @Ctx() { userId }: Context,
+    @Info() info: GraphQLResolveInfo
+  ): Promise<NoMethods<CycleTransaction>> {
+    const cycleTransaction = await CycleTransaction.findOne({
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "creator"]),
+      ],
+    });
     if (!cycleTransaction) {
       throw new ApolloError("No cycle transaction found");
     }
     const membership = await BudgetMembership.findOne({
-      where: { budget: cycleTransaction.budget, user: user },
+      where: { budget: cycleTransaction.budget, user: { id: userId } },
     });
     if (
-      cycleTransaction.creator.id !== user.id &&
+      cycleTransaction.creator.id !== userId &&
       membership &&
       membership.accessLevel !== AccessLevel.OBSERVER
     ) {
       throw new ApolloError("No access to edit transaction");
     }
-    return cycleTransaction.remove();
+    return { ...(await cycleTransaction.remove()), id };
   }
 }

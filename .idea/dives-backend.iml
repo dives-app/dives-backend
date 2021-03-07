@@ -7,6 +7,11 @@
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/.serverless" />
+      <excludeFolder url="file://$MODULE_DIR$/s3-buckets" />
+      <excludeFolder url="file://$MODULE_DIR$/build_output" />
+      <excludeFolder url="file://$MODULE_DIR$/local_node_modules" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

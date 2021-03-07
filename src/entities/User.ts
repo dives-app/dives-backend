@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, Generated, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Category } from "./Category";
 import { Transaction } from "./Transaction";
@@ -20,7 +14,7 @@ import { Merchant } from "./Merchant";
 @Entity()
 export class User extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
@@ -42,43 +36,50 @@ export class User extends BaseEntity {
   @Column("varchar")
   password: string;
 
+  @Column({ unique: true })
+  @Generated("uuid")
+  token: string;
+
   @Field({ nullable: true })
   @Column("varchar", { nullable: true })
   photoUrl: string;
 
+  @Field({ nullable: true })
+  updatePhotoUrl: string;
+
   @Field(() => [Category])
-  @OneToMany(() => Category, (category) => category.ownerUser)
+  @OneToMany(() => Category, category => category.ownerUser)
   categories: Category[];
 
   @Field(() => [Merchant])
-  @OneToMany(() => Merchant, (merchant) => merchant.ownerUser)
+  @OneToMany(() => Merchant, merchant => merchant.ownerUser)
   merchants: Merchant[];
 
   @Field(() => [Transaction])
-  @OneToMany(() => Transaction, (transaction) => transaction.creator)
+  @OneToMany(() => Transaction, transaction => transaction.creator)
   transactions: Transaction[];
 
   @Field(() => [CycleTransaction])
-  @OneToMany(() => CycleTransaction, (transaction) => transaction.creator)
+  @OneToMany(() => CycleTransaction, transaction => transaction.creator)
   cycleTransactions: CycleTransaction[];
 
   @Field(() => [Account])
-  @OneToMany(() => Account, (account) => account.owner)
+  @OneToMany(() => Account, account => account.owner)
   accounts: Account[];
 
   @Field(() => [BudgetMembership])
-  @OneToMany(() => BudgetMembership, (membership) => membership.user)
+  @OneToMany(() => BudgetMembership, membership => membership.user)
   budgetMembership: BudgetMembership[];
 
   @Field(() => [Debt])
-  @OneToMany(() => Debt, (debt) => debt.owner)
+  @OneToMany(() => Debt, debt => debt.owner)
   debts: Debt[];
 
   @Field(() => [Notification])
-  @OneToMany(() => Notification, (notification) => notification.user)
+  @OneToMany(() => Notification, notification => notification.user)
   notifications: Notification[];
 
   @Field(() => [Purchase])
-  @OneToMany(() => Purchase, (purchase) => purchase.user)
+  @OneToMany(() => Purchase, purchase => purchase.user)
   purchases: Purchase[];
 }

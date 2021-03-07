@@ -1,12 +1,8 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Account } from "../entities/Account";
-import { Context } from "../../types";
+import { Context, NoMethods } from "../../types";
 import { ApolloError } from "apollo-server-errors";
-import {
-  AccountInput,
-  NewAccountInput,
-  UpdateAccountInput,
-} from "./AccountInput";
+import { AccountInput, NewAccountInput, UpdateAccountInput } from "./AccountInput";
 import { User } from "../entities/User";
 import { updateObject } from "../utils/updateObject";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
@@ -17,27 +13,28 @@ export class AccountResolver {
   @Query(() => Account)
   async account(
     @Arg("options") { id }: AccountInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Account> {
+  ): Promise<NoMethods<Account>> {
     const account = await Account.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
       throw new ApolloError("No account found");
     }
-    if (account.owner.id !== user.id) {
+    if (account.owner.id !== userId) {
       throw new ApolloError("You don't have access to this account");
     }
     return account;
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async createAccount(
     @Arg("options") options: NewAccountInput,
-    @Ctx() { user }: Context
-  ): Promise<Account> {
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<Account>> {
     const { name, balance, color, currency, description, icon, type } = options;
     try {
       return Account.create({
@@ -48,19 +45,20 @@ export class AccountResolver {
         iconUrl: icon,
         type,
         description,
-        owner: await User.findOne({ where: { id: user.id } }),
+        owner: await User.findOne({ where: { id: userId } }),
       }).save();
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async updateAccount(
     @Arg("options") options: UpdateAccountInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Account> {
+  ): Promise<NoMethods<Account>> {
     const {
       id,
       name,
@@ -75,15 +73,14 @@ export class AccountResolver {
       billingPeriod,
       owner,
     } = options;
-    if (!user.id) throw new ApolloError("No user logged in");
     const account = await Account.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
       throw new ApolloError("There is no account with that id");
     }
-    if (account.owner.id !== user.id) {
+    if (account.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this account");
     }
     try {
@@ -104,29 +101,29 @@ export class AccountResolver {
         billingPeriod,
         owner: ownerAccount,
       });
-      return account.save();
+      return { ...(await account.save()), id };
     } catch (e) {
       throw new ApolloError(e);
     }
   }
 
+  @Authorized()
   @Mutation(() => Account)
   async deleteAccount(
     @Arg("options") { id }: AccountInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Account> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Account>> {
     const account = await Account.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!account) {
       throw new ApolloError("There is no account with that id");
     }
-    if (account.owner.id !== user.id) {
+    if (account.owner.id !== userId) {
       throw new ApolloError("You are not the owner of this account");
     }
-    return account.remove();
+    return { ...(await account.remove()), id };
   }
 }

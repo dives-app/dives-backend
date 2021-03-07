@@ -16,11 +16,9 @@ export class NewCategoryInput {
   @Field()
   type: CategoryType;
   @Field()
-  icon: string; // TODO: FILE
+  icon: string;
   @Field()
   color: string;
-  @Field({ nullable: true })
-  ownerUser: string;
   @Field({ nullable: true })
   ownerBudget: string;
 }
@@ -36,7 +34,7 @@ export class UpdateCategoryInput {
   @Field({ nullable: true })
   type?: CategoryType;
   @Field({ nullable: true })
-  icon?: string; // TODO: FILE
+  icon?: string;
   @Field({ nullable: true })
   color?: string;
 }

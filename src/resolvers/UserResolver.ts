@@ -1,27 +1,28 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import argon2 from "argon2";
-import { User } from "../entities/User";
-import { Context } from "../../types";
-import { UpdateUserInput, UserInput, UsernamePasswordInput } from "./UserInput";
+import { nanoid } from "nanoid";
 import { ApolloError } from "apollo-server-errors";
-import { setCredentialCookie } from "../../utils/setCredentialCookie";
-import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
+import { User } from "../entities/User";
+import { Context, NoMethods } from "../../types";
+import { UpdateUserInput, UserInput, UsernamePasswordInput } from "./UserInput";
+import { setToken } from "../utils/setToken";
+import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { updateObject } from "../utils/updateObject";
+import { revokeToken } from "../utils/revokeToken";
+import { isValidPassword } from "../utils/isValidPassword";
+
+const { S3_BUCKET, S3_REGION, STAGE } = process.env;
 
 @Resolver(() => User)
 export class UserResolver {
+  @Authorized()
   @Query(() => User)
-  async user(
-    @Ctx() { user }: Context,
-    @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
-    const currentUser = await User.findOne({
-      where: { id: user.id },
+  async user(@Ctx() { userId }: Context, @Info() info: GraphQLResolveInfo): Promise<User> {
+    return User.findOne({
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    if (!currentUser) throw new ApolloError("No user logged in");
-    return currentUser;
   }
 
   @Query(() => User)
@@ -29,7 +30,7 @@ export class UserResolver {
     @Arg("options") options: UserInput,
     @Ctx() { setCookies }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
+  ): Promise<NoMethods<User>> {
     let userWithSameEmail;
     try {
       userWithSameEmail = await User.findOne({
@@ -42,18 +43,11 @@ export class UserResolver {
     if (!userWithSameEmail) {
       throw new ApolloError("No account with provided email");
     }
-    const validPassword = await argon2.verify(
-      userWithSameEmail.password,
-      options.password
-    );
+    const validPassword = await argon2.verify(userWithSameEmail.password, options.password);
     if (!validPassword) {
       throw new ApolloError("Invalid credentials");
     }
-    const tokenData = {
-      id: userWithSameEmail.id,
-      email: userWithSameEmail.email,
-    };
-    setCredentialCookie(tokenData, setCookies);
+    await setToken(userWithSameEmail.token, setCookies);
     return userWithSameEmail;
   }
 
@@ -61,15 +55,20 @@ export class UserResolver {
   async register(
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() { setCookies }: Context
-  ): Promise<User> {
+  ): Promise<NoMethods<User>> {
     const userWithSameEmail = await User.findOne({
       where: { email: options.email },
     });
     if (userWithSameEmail) {
-      throw new ApolloError("Email already in use");
+      throw new ApolloError("Email already in use", "EMAIL_ALREADY_IN_USE");
     }
-    // TODO: Add password security validation
     const { email, password, name, birthDate } = options;
+    if (!isValidPassword(password)) {
+      throw new ApolloError(
+        "Invalid password: a valid password should contain at least one digit, small letter, capital letter, special character and be at least 8 characters long",
+        "INVALID_PASSWORD"
+      );
+    }
     const hashedPassword = await argon2.hash(password);
     let user;
     try {
@@ -82,49 +81,101 @@ export class UserResolver {
     } catch (err) {
       throw new ApolloError(err);
     }
-    const tokenData = {
-      id: user.id,
-      email: user.email,
-    };
-    setCredentialCookie(tokenData, setCookies);
+    await setToken(user.id, setCookies);
     return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async updateUser(
     @Arg("options") options: UpdateUserInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId, s3, connection }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
-    const { country, password, photo, birthDate, email } = options;
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<User>> {
+    const { country, password, photo, birthDate, email, name } = options;
     const userToUpdate = await User.findOne({
-      where: { user: user.id },
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    // TODO: Add password security validation
+    let photoUrl;
+    let updatePhotoUrl;
+    if (photo !== undefined) {
+      let file;
+      const photoSplit = photo.split(".");
+      const extension = photoSplit[photoSplit.length - 1];
+      if (userToUpdate.photoUrl !== null) {
+        let split = userToUpdate.photoUrl.split("/");
+        split = split[split.length - 1].split(".");
+        split[split.length - 1] = extension;
+        file = split.join(".");
+      } else {
+        file = `${nanoid()}.${extension}`;
+      }
+      updatePhotoUrl = s3.createPresignedPost({
+        Bucket: S3_BUCKET,
+        Fields: {
+          key: `${userId}/${file}`,
+          acl: "public-read",
+        },
+        Conditions: [
+          ["content-length-range", 0, 3_000_000], // Restrict size from 0-3MB
+        ],
+        Expires: 100,
+      });
+      if (STAGE === "dev") {
+        photoUrl = `http://localhost:4569/${S3_BUCKET}/${userId}/${file}`;
+        updatePhotoUrl.url = updatePhotoUrl.url.replace("https://", "http://");
+      } else {
+        photoUrl = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${userId}/${file}`;
+      }
+    }
+    let hashedPassword = undefined;
+    if (password !== undefined) {
+      hashedPassword = await argon2.hash(password);
+      if (!isValidPassword(password)) {
+        throw new ApolloError(
+          "Invalid password: a valid password should contain at least one digit, small letter, capital letter, special character and be at least 8 characters long",
+          "INVALID_PASSWORD"
+        );
+      }
+    }
     updateObject(userToUpdate, {
+      name,
       country,
-      password: await argon2.hash(password),
-      photoUrl: photo,
+      password: hashedPassword,
+      updatePhotoUrl: JSON.stringify(updatePhotoUrl),
+      photoUrl,
       birthDate,
       email,
     });
-    return userToUpdate.save();
+    const user = await userToUpdate.save();
+    if (password !== undefined) {
+      await revokeToken(userId, connection);
+    }
+    return user;
   }
 
+  @Authorized()
   @Mutation(() => User)
   async deleteUser(
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<User> {
-    if (!user.id) throw new ApolloError("No user logged in");
-
+  ): Promise<NoMethods<User>> {
     const userToDelete = await User.findOne({
-      where: { user: user.id },
+      where: { id: userId },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
     });
-    // TODO: Add email confirmation
-    return userToDelete.remove();
+    return { ...(await userToDelete.remove()), id: userId };
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async revokeToken(@Ctx() { userId, connection }: Context): Promise<boolean> {
+    try {
+      await revokeToken(userId, connection);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

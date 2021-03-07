@@ -1,26 +1,22 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Merchant } from "../entities/Merchant";
-import { Context } from "../../types";
+import { Context, NoMethods } from "../../types";
 import { ApolloError } from "apollo-server-errors";
-import {
-  MerchantInput,
-  NewMerchantInput,
-  UpdateMerchantInput,
-} from "./MerchantInput";
+import { MerchantInput, NewMerchantInput, UpdateMerchantInput } from "./MerchantInput";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
 import { updateObject } from "../utils/updateObject";
 import { AccessLevel, BudgetMembership } from "../entities/BudgetMembership";
+import { User } from "../entities/User";
 
 @Resolver(() => Merchant)
 export class MerchantResolver {
+  @Authorized()
   @Query(() => Merchant)
   async merchant(
     @Arg("options") options: MerchantInput,
-    @Ctx() { user }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Merchant>> {
     // TODO: Check if user has permissions to merchant
     try {
       return await Merchant.findOne({
@@ -32,17 +28,17 @@ export class MerchantResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
   async createMerchant(
-    @Arg("options")
-    { name }: NewMerchantInput,
-    @Ctx() { user }: Context
-  ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    @Arg("options") { name }: NewMerchantInput,
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<Merchant>> {
     let merchant;
     try {
       merchant = await Merchant.create({
         name,
+        ownerUser: await User.findOne({ where: { id: userId } }),
       }).save();
     } catch (err) {
       throw new ApolloError(err);
@@ -50,14 +46,12 @@ export class MerchantResolver {
     return merchant;
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
   async updateMerchant(
-    @Arg("options")
-    { id, name }: UpdateMerchantInput,
-    @Ctx() { user }: Context,
+    @Arg("options") { id, name }: UpdateMerchantInput,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
       where: { id },
       relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
@@ -69,35 +63,41 @@ export class MerchantResolver {
     return merchant;
   }
 
+  @Authorized()
   @Mutation(() => Merchant)
   async deleteMerchant(
     @Arg("options") { id }: MerchantInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Merchant> {
-    if (!user.id) throw new ApolloError("No user logged in");
-
+  ): Promise<NoMethods<Merchant>> {
     const merchant = await Merchant.findOne({
-      where: { merchant: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      where: { id },
+      relations: [
+        ...new Set([
+          ...getRelationSubfields(info.fieldNodes[0].selectionSet),
+          "ownerBudget",
+          "ownerUser",
+        ]),
+      ],
     });
     const budgetMemberships = await BudgetMembership.find({
       where: {
-        user: user.id,
+        user: userId,
       },
+      relations: ["budget"],
     });
     const budgetMerchant = budgetMemberships
       .filter(
-        (membership) =>
+        membership =>
           membership.accessLevel === AccessLevel.EDITOR ||
           membership.accessLevel === AccessLevel.OWNER
       )
-      .find((membership) => {
+      .find(membership => {
         return merchant.ownerBudget.id === membership.budget.id;
       });
-    if (merchant.ownerUser.id !== user.id && !budgetMerchant) {
+    if (merchant.ownerUser?.id !== userId && !budgetMerchant) {
       throw new ApolloError("You don't have access to merchant with that id");
     }
-    return merchant.remove();
+    return { ...(await merchant.remove()), id };
   }
 }

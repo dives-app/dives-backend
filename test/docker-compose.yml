@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  test_db:
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: test
+    ports:
+    - 5432:5432
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080

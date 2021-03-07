@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Plan } from "./Plan";
 import { User } from "./User";
@@ -25,8 +19,13 @@ export class Purchase extends BaseEntity {
   endDate: string;
 
   @Field()
-  @Column("money")
-  price: string;
+  @Column("money", {
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
+  price: number;
 
   @Field()
   @Column("varchar")
@@ -37,10 +36,10 @@ export class Purchase extends BaseEntity {
   name: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.purchases, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, user => user.purchases, { onDelete: "CASCADE" })
   user: User;
 
   @Field(() => Plan)
-  @ManyToOne(() => Plan, (plan) => plan.purchases)
+  @ManyToOne(() => Plan, plan => plan.purchases)
   plan: Plan;
 }

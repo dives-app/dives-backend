@@ -1,10 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 
@@ -12,7 +6,7 @@ import { User } from "./User";
 @Entity()
 export class Debt extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn({ type: "uuid" })
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Field()
@@ -36,7 +30,12 @@ export class Debt extends BaseEntity {
   description: string;
 
   @Field()
-  @Column("money")
+  @Column("money", {
+    transformer: {
+      to: (moneyNumber: number) => moneyNumber,
+      from: (moneyString: string | null) => moneyString?.replace(/,/g, "").slice(1),
+    },
+  })
   balance: number;
 
   @Field()
@@ -48,6 +47,6 @@ export class Debt extends BaseEntity {
   color: string;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.debts, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, user => user.debts, { onDelete: "CASCADE" })
   owner: User;
 }

@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: db
     ports:
-    - 5432:5432
+      - 5432:5432
 
   adminer:
     image: adminer
@@ -25,3 +25,4 @@ services:
       - db
     ports:
       - 3000:3000
+      - 4569:4569

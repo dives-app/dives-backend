@@ -1,12 +1,8 @@
-import { Arg, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Info, Mutation, Query, Resolver } from "type-graphql";
 import { Category } from "../entities/Category";
-import { Context } from "../../types";
+import { Context, NoMethods } from "../../types";
 import { ApolloError } from "apollo-server-errors";
-import {
-  CategoryInput,
-  NewCategoryInput,
-  UpdateCategoryInput,
-} from "./CategoryInput";
+import { CategoryInput, NewCategoryInput, UpdateCategoryInput } from "./CategoryInput";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { GraphQLResolveInfo } from "graphql";
 import { updateObject } from "../utils/updateObject";
@@ -16,50 +12,72 @@ import { User } from "../entities/User";
 
 @Resolver(() => Category)
 export class CategoryResolver {
+  @Authorized()
   @Query(() => Category)
   async category(
     @Arg("options") options: CategoryInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
-    // TODO: Check if user has permissions to category
+  ): Promise<NoMethods<Category>> {
+    let category;
     try {
-      return await Category.findOne({
+      category = await Category.findOne({
         where: { id: options.id },
-        relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+        relations: [
+          ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+        ],
       });
     } catch (e) {
       throw new ApolloError(e);
     }
+    if (!category) throw new ApolloError("There is no such category", "NOT_FOUND");
+    if (category.ownerUser.id === userId) {
+      return category;
+    }
+    const budgetMembership = await BudgetMembership.findOne({
+      where: { budget: category.ownerBudget.id, user: userId },
+    });
+    if (budgetMembership) {
+      return category;
+    }
+    throw new ApolloError("You don't have access to this category", "FORBIDDEN");
   }
 
+  @Authorized()
   @Mutation(() => Category)
   async createCategory(
     @Arg("options")
-    {
-      name,
-      limit,
-      color,
-      icon,
-      ownerBudget,
-      ownerUser,
-      type,
-    }: NewCategoryInput,
-    @Ctx() { user }: Context
-  ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+    { name, limit, color, icon, ownerBudget, type }: NewCategoryInput,
+    @Ctx() { userId }: Context
+  ): Promise<NoMethods<Category>> {
     let category;
+    const owner = { budget: undefined, user: undefined };
+    if (ownerBudget !== undefined) {
+      const membership = await BudgetMembership.findOne({
+        user: { id: userId },
+        budget: { id: ownerBudget },
+      });
+      if (!membership) throw new ApolloError("No such budget");
+      if (
+        membership.accessLevel === AccessLevel.EDITOR ||
+        membership.accessLevel === AccessLevel.OWNER
+      ) {
+        owner.budget = await Budget.findOne({ where: { id: ownerBudget } });
+      } else {
+        throw new ApolloError("You must be EDITOR or OWNER to add a category", "FORBIDDEN");
+      }
+    } else {
+      owner.user = await User.findOne({ where: { id: userId } });
+    }
+
     try {
       category = await Category.create({
         name,
         limit,
         color,
         iconUrl: icon,
-        ownerBudget:
-          ownerBudget && (await Budget.findOne({ where: { id: ownerBudget } })),
-        ownerUser:
-          ownerUser && (await User.findOne({ where: { id: ownerUser } })),
+        ownerBudget: owner.budget,
+        ownerUser: owner.user,
         type,
       }).save();
     } catch (err) {
@@ -68,18 +86,38 @@ export class CategoryResolver {
     return category;
   }
 
+  @Authorized()
   @Mutation(() => Category)
   async updateCategory(
     @Arg("options")
     { id, name, limit, color, icon, type }: UpdateCategoryInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
+  ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
       where: { id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+      ],
     });
+    // TODO: create abstract logic for that and make it more efficient
+    const budgetMemberships = await BudgetMembership.find({
+      where: {
+        user: userId,
+      },
+    });
+    const budgetCategory = budgetMemberships
+      .filter(
+        membership =>
+          membership.accessLevel === AccessLevel.EDITOR ||
+          membership.accessLevel === AccessLevel.OWNER
+      )
+      .find(membership => {
+        return category.ownerBudget.id === membership.budget.id;
+      });
+    if (category.ownerUser.id !== userId && !budgetCategory) {
+      throw new ApolloError("You don't have access to category with that id");
+    }
     updateObject(category, {
       name,
       limit,
@@ -91,35 +129,39 @@ export class CategoryResolver {
     return category;
   }
 
+  @Authorized()
   @Mutation(() => Category)
   async deleteCategory(
     @Arg("options") { id }: CategoryInput,
-    @Ctx() { user }: Context,
+    @Ctx() { userId }: Context,
     @Info() info: GraphQLResolveInfo
-  ): Promise<Category> {
-    if (!user.id) throw new ApolloError("No user logged in");
-
+  ): Promise<NoMethods<Category>> {
     const category = await Category.findOne({
-      where: { category: id },
-      relations: getRelationSubfields(info.fieldNodes[0].selectionSet),
+      where: { id },
+      relations: [
+        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "ownerUser"]),
+      ],
     });
+    if (category.ownerUser.id === userId) {
+      return { ...(await category.remove()), id };
+    }
     const budgetMemberships = await BudgetMembership.find({
       where: {
-        user: user.id,
+        user: userId,
       },
     });
     const budgetCategory = budgetMemberships
       .filter(
-        (membership) =>
+        membership =>
           membership.accessLevel === AccessLevel.EDITOR ||
           membership.accessLevel === AccessLevel.OWNER
       )
-      .find((membership) => {
+      .find(membership => {
         return category.ownerBudget.id === membership.budget.id;
       });
-    if (category.ownerUser.id !== user.id && !budgetCategory) {
+    if (!budgetCategory) {
       throw new ApolloError("You don't have access to category with that id");
     }
-    return category.remove();
+    return { ...(await category.remove()), id };
   }
 }

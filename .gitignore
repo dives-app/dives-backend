@@ -4,6 +4,7 @@ build_output
 
 # Serverless directories
 .serverless
+s3-buckets
 
 # Configuration files
 .vscode

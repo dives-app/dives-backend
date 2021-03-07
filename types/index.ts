@@ -1,10 +1,6 @@
 import { APIGatewayProxyEvent, Context as LambdaContext } from "aws-lambda";
 import { Connection } from "typeorm";
-
-export interface TokenData {
-  id: string;
-  email: string;
-}
+import { S3 } from "aws-sdk";
 
 export interface ApolloContext {
   event: APIGatewayProxyEvent;
@@ -26,8 +22,14 @@ export interface Cookie {
 }
 
 export interface Context extends ApolloContext {
-  user: TokenData;
+  connection: Connection;
+  s3: S3;
   setCookies: Array<Cookie>;
   setHeaders: Array<any>;
-  connection: Connection;
+  userId?: string;
 }
+
+type NonFunctionPropertyNames<T> = {
+  [K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];
+export type NoMethods<T> = Pick<T, NonFunctionPropertyNames<T>>;
