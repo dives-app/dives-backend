@@ -4,7 +4,6 @@ WORKDIR /backend
 
 COPY src ./src
 COPY types ./types
-COPY utils ./utils
 COPY index.ts ./index.ts
 COPY package.json ./package.json
 COPY yarn.lock ./yarn.lock
@@ -26,4 +25,4 @@ RUN yarn
 RUN npx tsc
 
 EXPOSE 3000
-CMD ["npx", "typeorm", "migration:run", "&&", "npm", "run", "serve", "--", "-o", "0.0.0.0"]
+CMD ["sh", "-c", "npx typeorm migration:run && npm run serve -- -o 0.0.0.0"]
