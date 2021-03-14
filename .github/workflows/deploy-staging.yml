@@ -18,7 +18,9 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: '**/build_output'
+          path: |
+            '**/node_modules'
+            '**/build_output'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
@@ -30,9 +32,10 @@ jobs:
       - name: Prepare serverless.yml
         run: cp serverless-sample.yml serverless.yml
 
+      - name: Prepare env.yml
+        run: cp env-sample.yml env.yml
+
       - name: Deploy to AWS
         env:
-          DB_NAME: ${{secrets.DB_NAME}}
-          DB_USERNAME: ${{secrets.DB_USERNAME}}
-          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          SERVERLESS_ACCESS_KEY: ${{secrets.SERVERLESS_ACCESS_KEY}}
         run: sudo yarn deploy
