@@ -18,7 +18,8 @@ export async function setToken(token: string, setCookies: Array<Cookie>) {
       httpOnly: true,
       maxAge: MILLISECONDS_IN_A_WEEK / 100,
       path: "/",
-      sameSite: true,
+      // Disable sameSite to allow localhost development with staging backend
+      sameSite: STAGE === "staging" ? "none" : "strict",
       secure: STAGE !== "dev",
     },
   });
