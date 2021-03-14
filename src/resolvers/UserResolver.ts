@@ -7,6 +7,7 @@ import { User } from "../entities/User";
 import { Context, NoMethods } from "../../types";
 import { UpdateUserInput, UserInput, UsernamePasswordInput } from "./UserInput";
 import { setToken } from "../utils/setToken";
+import { unsetToken } from "../utils/unsetToken";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
 import { updateObject } from "../utils/updateObject";
 import { revokeToken } from "../utils/revokeToken";
@@ -51,6 +52,16 @@ export class UserResolver {
     return userWithSameEmail;
   }
 
+  @Query(() => Boolean)
+  async logout(@Ctx() { setCookies }: Context): Promise<boolean> {
+    try {
+      await unsetToken(setCookies);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   @Mutation(() => User)
   async register(
     @Arg("options") options: UsernamePasswordInput,
@@ -81,7 +92,7 @@ export class UserResolver {
     } catch (err) {
       throw new ApolloError(err);
     }
-    await setToken(user.id, setCookies);
+    await setToken(user.token, setCookies);
     return user;
   }
 
