@@ -158,6 +158,7 @@ type Query {
     cycleTransaction(options: CycleTransactionInput!): CycleTransaction!
     debt(options: DebtInput!): Debt!
     login(options: UserInput!): User!
+    logout: Boolean!
     merchant(options: MerchantInput!): Merchant!
     notification(options: NotificationInput!): Notification!
     purchase(options: PurchaseInput!): Purchase!
