@@ -7,6 +7,9 @@ on:
 jobs:
   Deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://azupx3hm25.execute-api.eu-central-1.amazonaws.com/staging/graphql
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
