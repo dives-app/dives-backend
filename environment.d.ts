@@ -11,7 +11,6 @@ declare global {
       S3_REGION: string;
       S3_BUCKET: string;
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: string;
-      JWT_SECRET: string;
     }
   }
 }

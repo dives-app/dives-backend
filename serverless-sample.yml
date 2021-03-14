@@ -27,7 +27,6 @@ provider:
     S3_REGION: ${self:provider.region}
     S3_BUCKET: ${self:custom.${self:custom.stage}.S3_BUCKET}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    JWT_SECRET: secret
 
 custom:
   stage: ${opt:stage, self:provider.stage}
@@ -43,14 +42,14 @@ custom:
       Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Address ]
     DB_PORT:
       Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Port ]
-    DB_NAME: db
-    DB_USERNAME: user
-    DB_PASSWORD: password
+    DB_NAME: ${env:DB_NAME}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
     S3_BUCKET: dives-backend-data
 
-    s3:
-      host: localhost
-      directory: s3-buckets
+  s3:
+    host: localhost
+    directory: s3-buckets
 
 resources:
   Resources:
