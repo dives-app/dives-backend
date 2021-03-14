@@ -4,7 +4,6 @@ import { Connection, createConnection, getConnectionManager } from "typeorm";
 import { ApolloServer } from "apollo-server-lambda";
 import httpHeadersPlugin from "apollo-server-plugin-http-headers";
 import { buildSchemaSync } from "type-graphql";
-import { APIGatewayEvent, Context } from "aws-lambda";
 import AWS from "aws-sdk";
 import { ApolloContext, Context as MyApolloContext } from "./types";
 import { UserResolver } from "./src/resolvers/UserResolver";
@@ -142,24 +141,10 @@ const server = new ApolloServer({
     };
   },
 });
-const handler = server.createHandler({
+
+exports.handler = server.createHandler({
   cors: {
     origin: true,
     credentials: true,
   },
 });
-
-//! Another stuff I don't quite understand, but without it async handler doesn't work
-const runHandler = (event, context, handler) =>
-  new Promise((resolve, reject) => {
-    const callback = (error, body) => (error ? reject(error) : resolve(body));
-    handler(event, context, callback);
-  });
-
-exports.handler = async (event: APIGatewayEvent, context: Context) => {
-  try {
-    return await runHandler(event, context, handler);
-  } catch (e) {
-    console.error(e);
-  }
-};

@@ -14,4 +14,4 @@ RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
 RUN yum install -y yarn && yum clean all
 ENV npm_config_build_from_source=true
 
-CMD ["sh", "-c", "rm -Rf node_modules && yarn install --production=true"]
+CMD ["sh", "-c", "yarn install --production=true"]
