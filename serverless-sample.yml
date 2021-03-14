@@ -12,7 +12,8 @@ provider:
   stage: dev
   memorySize: 512
   runtime: nodejs12.x
-  role: LambdaRole
+  iam:
+    role: LambdaRole
   lambdaHashingVersion: 20201221
   apiGateway:
     shouldStartNameWithService: true
@@ -241,7 +242,11 @@ functions:
       - http:
           path: graphql
           method: post
-          cors: true
+          cors:
+            origins:
+              - https://dives-txvot44owa-ez.a.run.app
+              - http://localhost:*
+            allowCredentials: true
       - http:
           path: graphql
           method: get

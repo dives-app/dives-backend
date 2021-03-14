@@ -16,7 +16,7 @@ export interface Cookie {
     httpOnly?: boolean;
     maxAge?: number;
     path?: string;
-    sameSite?: boolean;
+    sameSite?: true | "strict" | "lax" | "none";
     secure?: boolean;
   };
 }
