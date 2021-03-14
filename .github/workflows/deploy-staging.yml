@@ -18,8 +18,13 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: '**/build_output'
+          path: |
+            '**/node_modules'
+            '**/build_output'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        run: yarn install
 
       - name: Build node_modules for Lambda
         run: sudo yarn build:lambda
