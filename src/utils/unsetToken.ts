@@ -12,11 +12,12 @@ export async function unsetToken(setCookies: Array<Cookie>) {
     value: "",
     options: {
       domain: SERVER_HOST,
-      expires: new Date(Date.now()),
       httpOnly: true,
+      // Set and max-age to unset the cookie in the browser
       maxAge: 0,
       path: "/",
-      sameSite: true,
+      // Disable sameSite to allow localhost development with staging backend
+      sameSite: STAGE === "staging" ? "none" : "strict",
       secure: STAGE !== "dev",
     },
   });
