@@ -12,8 +12,6 @@ provider:
   stage: dev
   memorySize: 512
   runtime: nodejs12.x
-  iam:
-    role: LambdaRole
   lambdaHashingVersion: 20201221
   apiGateway:
     shouldStartNameWithService: true
@@ -43,9 +41,9 @@ custom:
       Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Address ]
     DB_PORT:
       Fn::GetAtt: [ PostgreSqlRDSInstance, Endpoint.Port ]
-    DB_NAME: ${param:DB_NAME}
-    DB_USERNAME: ${param:DB_USERNAME}
-    DB_PASSWORD: ${param:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME, 'dives'}
+    DB_USERNAME: ${env:DB_USERNAME, 'dives'}
+    DB_PASSWORD: ${env:DB_PASSWORD, 'dives'}
     S3_BUCKET: dives-backend-data
 
   s3:
