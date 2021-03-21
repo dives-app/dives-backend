@@ -75,7 +75,7 @@ export class CategoryResolver {
         name,
         limit,
         color,
-        iconUrl: icon,
+        icon,
         ownerBudget: owner.budget,
         ownerUser: owner.user,
         type,
@@ -122,7 +122,7 @@ export class CategoryResolver {
       name,
       limit,
       color,
-      iconUrl: icon,
+      icon,
       type,
     });
     await category.save();

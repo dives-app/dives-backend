@@ -25,9 +25,9 @@ export class User extends BaseEntity {
   @Column({ type: "varchar", unique: true })
   email: string;
 
-  @Field()
-  @Column("date")
-  birthDate: string;
+  @Field({ nullable: true })
+  @Column("date", { nullable: true })
+  birthDate?: string;
 
   @Field({ nullable: true })
   @Column("varchar", { nullable: true })

@@ -13,7 +13,7 @@ type Account {
     currency: String!
     cycleTransaction: [CycleTransaction!]!
     description: String
-    iconUrl: String!
+    icon: String!
     id: String!
     interestRate: Float
     name: String!
@@ -42,7 +42,7 @@ type BudgetMembership {
 type Category {
     color: String!
     cycleTransactions: [CycleTransaction!]!
-    iconUrl: String!
+    icon: String!
     id: String!
     limit: Float
     name: String!
@@ -72,7 +72,7 @@ type Debt {
     currency: String!
     description: String
     endDate: String!
-    iconUrl: String!
+    icon: String!
     id: String!
     interestRate: Float
     name: String!

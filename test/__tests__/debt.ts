@@ -5,46 +5,46 @@ import { truncateDatabase } from "../utils/truncateDatabase";
 
 describe("Debt", () => {
   const CREATE_USER = gql`
-      mutation {
-          register(
-              options: {
-                  email: "test@user.com"
-                  password: "legitP@55"
-                  name: "Test User"
-                  birthDate: "2001-02-03"
-              }
-          ) {
-              id
-              email
-              name
-              birthDate
-          }
+    mutation {
+      register(
+        options: {
+          email: "test@user.com"
+          password: "legitP@55"
+          name: "Test User"
+          birthDate: "2001-02-03"
+        }
+      ) {
+        id
+        email
+        name
+        birthDate
       }
+    }
   `;
 
   const CREATE_DEBT = gql`
-      mutation {
-          createDebt(
-              options: {
-                  name: "debtName"
-                  description: "Name of the cycle transaction"
-                  balance: 10.1
-                  icon: "test",
-                  color: "#000fff"
-                  currency: "USD",
-                  endDate: "2020-12-10"
-              }
-          ) {
-              id
-              name
-              description
-              balance
-              iconUrl
-              color
-              currency
-              endDate
-          }
+    mutation {
+      createDebt(
+        options: {
+          name: "debtName"
+          description: "Name of the cycle transaction"
+          balance: 10.1
+          icon: "test"
+          color: "#000fff"
+          currency: "USD"
+          endDate: "2020-12-10"
+        }
+      ) {
+        id
+        name
+        description
+        balance
+        icon
+        color
+        currency
+        endDate
       }
+    }
   `;
   let server: TestServer;
   let query: ApolloServerTestClient["query"];
@@ -69,10 +69,10 @@ describe("Debt", () => {
       name: "debtName",
       description: "Name of the cycle transaction",
       balance: 10.1,
-      iconUrl: "test",
+      icon: "test",
       color: "#000fff",
       currency: "USD",
-      endDate: "2020-12-10"
+      endDate: "2020-12-10",
     });
   });
 
@@ -89,7 +89,7 @@ describe("Debt", () => {
                 name
                 description
                 balance
-                iconUrl
+                icon
                 color
                 currency
                 endDate
@@ -102,10 +102,10 @@ describe("Debt", () => {
       name: "debtName",
       description: "Name of the cycle transaction",
       balance: 10.1,
-      iconUrl: "test",
+      icon: "test",
       color: "#000fff",
       currency: "USD",
-      endDate: "2020-12-10"
+      endDate: "2020-12-10",
     });
   });
 
@@ -129,7 +129,7 @@ describe("Debt", () => {
     const { data } = await mutate({ mutation: UPDATE_DEBT });
     expect(data.updateDebt).toEqual({
       id: debtId,
-      name: "updatedDebtName"
+      name: "updatedDebtName",
     });
   });
 
@@ -150,7 +150,7 @@ describe("Debt", () => {
     const { data } = await mutate({ mutation: DELETE_DEBT });
     expect(data.deleteDebt).toEqual({
       id: debtId,
-      name: "debtName"
+      name: "debtName",
     });
   });
 });

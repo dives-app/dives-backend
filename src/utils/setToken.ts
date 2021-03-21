@@ -14,7 +14,6 @@ export async function setToken(token: string, setCookies: Array<Cookie>) {
     value: token,
     options: {
       domain: SERVER_HOST,
-      expires: new Date(Date.now() + MILLISECONDS_IN_A_WEEK),
       httpOnly: true,
       maxAge: MILLISECONDS_IN_A_WEEK / 100,
       path: "/",

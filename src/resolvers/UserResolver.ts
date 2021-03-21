@@ -5,7 +5,7 @@ import { ApolloError } from "apollo-server-errors";
 import { GraphQLResolveInfo } from "graphql";
 import { User } from "../entities/User";
 import { Context, NoMethods } from "../../types";
-import { UpdateUserInput, UserInput, UsernamePasswordInput } from "./UserInput";
+import { UpdateUserInput, UserInput, NewUserInput } from "./UserInput";
 import { setToken } from "../utils/setToken";
 import { unsetToken } from "../utils/unsetToken";
 import { getRelationSubfields } from "../utils/getRelationSubfields";
@@ -64,7 +64,7 @@ export class UserResolver {
 
   @Mutation(() => User)
   async register(
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg("options") options: NewUserInput,
     @Ctx() { setCookies }: Context
   ): Promise<NoMethods<User>> {
     const userWithSameEmail = await User.findOne({
@@ -87,7 +87,7 @@ export class UserResolver {
         email,
         name,
         password: hashedPassword,
-        birthDate: birthDate,
+        birthDate,
       }).save();
     } catch (err) {
       throw new ApolloError(err);
