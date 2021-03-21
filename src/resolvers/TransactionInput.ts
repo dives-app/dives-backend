@@ -8,7 +8,7 @@ export class TransactionInput {
 
 @InputType()
 export class NewTransactionInput {
-  @Field({ nullable: true })
+  @Field()
   name: string;
 
   @Field()

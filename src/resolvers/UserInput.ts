@@ -1,15 +1,15 @@
 import { InputType, Field } from "type-graphql";
 
 @InputType()
-export class UsernamePasswordInput {
+export class NewUserInput {
   @Field()
   email: string;
   @Field()
   name: string;
   @Field()
   password: string;
-  @Field()
-  birthDate: string;
+  @Field({ nullable: true, deprecationReason: "Use updateUser mutation instead" })
+  birthDate?: string;
 }
 
 @InputType()

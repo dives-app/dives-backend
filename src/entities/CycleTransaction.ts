@@ -13,8 +13,8 @@ export class CycleTransaction extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Field({ nullable: true })
-  @Column("varchar", { nullable: true })
+  @Field()
+  @Column("varchar")
   name: string;
 
   @Field({ nullable: true })

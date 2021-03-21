@@ -20,9 +20,7 @@ export class DebtResolver {
   ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: { id },
-      relations: [
-        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])
-      ]
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!debt) {
       throw new ApolloError("No debt found");
@@ -46,11 +44,11 @@ export class DebtResolver {
         balance,
         color,
         currency,
-        iconUrl: icon,
+        icon,
         description,
         interestRate,
         endDate,
-        owner: await User.findOne({ where: { id: userId } })
+        owner: await User.findOne({ where: { id: userId } }),
       }).save();
     } catch (e) {
       throw new ApolloError(e);
@@ -67,9 +65,7 @@ export class DebtResolver {
     const { id, name, currency, description, balance, icon, color, interestRate } = options;
     const debt = await Debt.findOne({
       where: { id },
-      relations: [
-        ...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])
-      ]
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!debt) {
       throw new ApolloError("There is no debt with that id");
@@ -83,9 +79,9 @@ export class DebtResolver {
         currency,
         description,
         balance,
-        iconUrl: icon,
+        icon,
         color,
-        interestRate
+        interestRate,
       });
       return { ...(await debt.save()), id };
     } catch (e) {
@@ -102,7 +98,7 @@ export class DebtResolver {
   ): Promise<NoMethods<Debt>> {
     const debt = await Debt.findOne({
       where: { id },
-      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])]
+      relations: [...new Set([...getRelationSubfields(info.fieldNodes[0].selectionSet), "owner"])],
     });
     if (!debt) {
       throw new ApolloError("There is no debt with that id");

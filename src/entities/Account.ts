@@ -41,7 +41,7 @@ export class Account extends BaseEntity {
 
   @Field()
   @Column("varchar")
-  iconUrl: string;
+  icon: string;
 
   @Field()
   @Column("varchar")

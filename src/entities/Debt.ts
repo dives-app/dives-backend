@@ -40,7 +40,7 @@ export class Debt extends BaseEntity {
 
   @Field()
   @Column("varchar")
-  iconUrl: string;
+  icon: string;
 
   @Field()
   @Column("varchar")

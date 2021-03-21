@@ -8,7 +8,7 @@ export class CycleTransactionInput {
 
 @InputType()
 export class NewCycleTransactionInput {
-  @Field({ nullable: true })
+  @Field()
   name: string;
 
   @Field({ nullable: true })
