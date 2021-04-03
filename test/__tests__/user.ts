@@ -151,4 +151,26 @@ describe("User", () => {
     expect(response.data).toBeNull();
     expect(response.errors[0].extensions.code).toBe("INVALID_PASSWORD");
   });
+
+  test("returns [] when requested budget and no budget membership present", async () => {
+    expect.assertions(2);
+    const createUserResponse = await mutate({ mutation: CREATE_USER });
+    server.loggedUserId = createUserResponse.data.register.id;
+    const GET_USER_BUDGET = gql`
+      query {
+        user {
+          id
+          budgetMembership {
+            accessLevel
+            budget {
+              id
+            }
+          }
+        }
+      }
+    `;
+    const { data } = await query({ query: GET_USER_BUDGET });
+    expect(data.user.id).toEqual(server.loggedUserId);
+    expect(data.user.budgetMembership).toEqual([]);
+  });
 });
