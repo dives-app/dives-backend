@@ -11,7 +11,7 @@ provider:
   region: eu-central-1
   stage: dev
   memorySize: 512
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   lambdaHashingVersion: 20201221
   apiGateway:
     shouldStartNameWithService: true
@@ -228,9 +228,8 @@ resources:
               Resource: arn:aws:s3:::${self:custom.${self:custom.stage}.S3_BUCKET}/*
 
 package:
-  exclude:
-    - "*/**"
-  include:
+  patterns:
+    - "!*/**"
     - build/**
 
 functions:
