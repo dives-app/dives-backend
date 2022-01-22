@@ -37,7 +37,7 @@
     "bufferutil": "4.0.3",
     "canvas": "2.7.0",
     "class-validator": "^0.13.1",
-    "nanoid": "^3.1.21",
+    "nanoid": "^3.1.31",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
     "source-map-support": "^0.5.19",
